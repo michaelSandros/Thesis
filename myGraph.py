@@ -44,7 +44,7 @@ def createGraph():
                                 edgeList = G.add_edge(e,k,influence = i)
                         else:
                                 continue
-        return (G,pos,labels,edgeList,n,seed)
+        return (G,pos,labels,edgeList,seed)
 
 
 #Drawing of the graph
@@ -55,9 +55,9 @@ def graphDraw(G,pos,labels,edgeList):
         nx.draw_networkx_labels(G,pos,labels)
         plt.show()
 
-def highDegree(G,n):
+def highDegree(G):
         deg = G.degree()
-        for e in range(n):
+        for e in G.nodes():
                 if(deg[e] != 0):
                         i = 1.0 / deg[e]
                         G.node[e]['threshold'] = i
