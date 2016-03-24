@@ -59,24 +59,20 @@ def linear_threshold(G, seeds, steps=0):
       The American journal of sociology, 1978.
 
   """
-  # check for mutliedges
   if type(G) == nx.MultiGraph or type(G) == nx.MultiDiGraph:
       raise Exception( \
           "linear_threshold() is not defined for graphs with multiedges.")
-
 
   # make sure the seeds are in the graph
   for s in seeds:
     if s not in G.nodes():
       raise Exception("seed", s, "is not in graph")
 
-
   # change to directed graph
   if not G.is_directed():
     DG = G.to_directed()
   else:
     DG = copy.deepcopy(G)
-
 
   # init thresholds
   for n in DG.nodes():
@@ -85,7 +81,7 @@ def linear_threshold(G, seeds, steps=0):
     elif DG.node[n]['threshold'] > 1:
       raise Exception("node threshold:", DG.node[n]['threshold'], \
           "cannot be larger than 1")
-  
+
   # init influences
   in_deg = DG.in_degree()
   for e in DG.edges():
