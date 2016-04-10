@@ -90,7 +90,7 @@ def drawstepbystep(G,labels,edgeList,nodeList,outcome):
                 nx.draw_networkx_nodes(G,pos,nodelist=outcome[e],node_color='blue')
                 # activated nodes with green color
                 nx.draw_networkx_nodes(G,pos,nodelist=activeList,node_color='green')
-				# extend the list with newly activated nodes
+		# extend the list with newly activated nodes
                 activeList.extend(outcome[e])
                 # draw Edges
                 nx.draw_networkx_edges(G,pos,edgeList)
