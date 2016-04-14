@@ -12,8 +12,8 @@ import sys
 # graph creation
 def createGraph():
         # lower and Upper bounds for random number of nodes
-        lower = 10
-        upper = 10
+        lower = 15
+        upper = 15
         random.seed(datetime.now())
 
         # lower <= Upper bound
@@ -72,7 +72,7 @@ def outDegree(G):
                         G.node[e]['threshold'] = 1.0
 # communities Drawing
 def commDraw(G,values):
-        nx.draw_spring(G, cmap = plt.get_cmap('jet'), node_color = values, node_size=5000, with_labels=True)
+        nx.draw_spring(G, cmap = plt.get_cmap('jet'), node_color = values, with_labels=True)
         plt.show()
 
 
@@ -81,7 +81,6 @@ def drawstepbystep(G,labels,edgeList,nodeList,outcome):
         pos=nx.spring_layout(G)
         activeList = []
         for e in range(1,len(outcome)):
-                print(outcome[e])
                 # all inactive are with red colors
                 nx.draw_networkx_nodes(G,pos,nodelist=nodeList)
                 # all seed nodes are with cyan color
