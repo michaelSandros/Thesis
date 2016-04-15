@@ -47,18 +47,17 @@ def initialNodes(G,comms):
     maxList = []
     M = len(comms)
     Ij = [list([]) for _ in range(M)]
-    K = 3
+    K = 2
     # number of nodes
     N = nx.number_of_nodes(G)
     if N >= K :
         # 2-d (M+1)x(K+1) arrays
         R = [[0 for x in range(K+1)] for x in range(M+1)]
         s = [[0 for x in range(K+1)] for x in range(M+1)]
-        print(comms)
         for k in range(1,K+1):
             for m in range(1,M+1):
                 for l in range(0,len(comms[m-1])):
-                    #union I with the influential nodes
+                    # union I with each node of the community
                     tempList = I + [comms[m-1][l]]
                     # edw mallon prepei na einai ypografima
                     union = linear_threshold(G,tempList,steps = -4)
@@ -68,11 +67,12 @@ def initialNodes(G,comms):
                     diff = VaU/N - Va/N
                     DRmList.extend([diff])
                     tempList = []
+                # if empty list go to the next community
                 if not DRmList:
                     continue
                 else:
                     DRm = max(DRmList)
-                R[m][k] = max(R[m-1][k],R[M][k-1]+DRm)
+                R[m][k] = max(R[m-1][k],(R[M][k-1]+DRm))
                 if (R[m-1][k] >= R[M][k-1] + DRm):
                     s[m][k] = s[m-1][k]
                 else:
@@ -81,24 +81,21 @@ def initialNodes(G,comms):
             # community numbering begins from 0 
             j = s[M][k] - 1
             print(j)
-            for x in range(0, len(comms[j])):
-                umaxTempList = Ij[j] + [comms[j][x]]
+            for l in range(0,len(comms[j])):
+                umaxTempList = Ij[j] + [comms[j][l]]
                 jUnion = linear_threshold(G,umaxTempList,steps = -4)
-                jnoUnion = linear_threshold(G,Ij[j],steps = -4)
+                jnoUnion = linear_threshold(G,Ij[j],steps= -4)
                 jVaU = calculateNodes(jUnion,G)
                 jVa = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
                 maxList.extend([jDiff])
-            if not maxList:
-                continue
-            else:
-                m = max(maxList)
-            index = [i for i, j in enumerate(maxList) if j == m]
-            # random in
-            newIndex = random.choice(index)
-            Ij[j].extend([comms[j][newIndex]])
-            I.extend([comms[j][newIndex]])
-            comms[j].remove(comms[j][newIndex])
+            m = max(maxList)
+            maxIndex = [i for i, j in enumerate(maxList) if j == m]
+            randommaxIndex = random.choice(maxIndex)
+            umax = comms[j][randommaxIndex]
+            I.extend([umax])
+            Ij[j].extend([umax])
+            comms[j].remove(umax)
             maxList = []
         return I
     else:
