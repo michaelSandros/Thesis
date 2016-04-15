@@ -40,6 +40,7 @@ def commNum(G):
 
 # CGA Algorithm
 def initialNodes(G,comms):
+    # lists for algorithm
     I = []
     DRmList = []
     tempList = []
@@ -81,6 +82,7 @@ def initialNodes(G,comms):
             # community numbering begins from 0 
             j = s[M][k] - 1
             print(j)
+            # for the j-th community
             for l in range(0,len(comms[j])):
                 umaxTempList = Ij[j] + [comms[j][l]]
                 jUnion = linear_threshold(G,umaxTempList,steps = -4)
@@ -89,14 +91,22 @@ def initialNodes(G,comms):
                 jVa = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
                 maxList.extend([jDiff])
+            # max value of the list
             m = max(maxList)
+            # index(-es) of the max value
             maxIndex = [i for i, j in enumerate(maxList) if j == m]
+            # if there are more than one index with max value
+            # get a random index
             randommaxIndex = random.choice(maxIndex)
+            # get the node with that index
             umax = comms[j][randommaxIndex]
+            # extend the lists with the node
             I.extend([umax])
             Ij[j].extend([umax])
+            # delete the node of the j-th community 
             comms[j].remove(umax)
             maxList = []
+        # retun the seeders
         return I
     else:
         print ("ERROR: K must be lower or equal to the number of nodes")
