@@ -6,7 +6,8 @@ from calculateNodes import *
 from communities import *
 
 G,seed,labels,edgeList,nodeList = createGraph()
-comms,values = commNum(G)
-seeds = initialNodes(G,comms)
-print ("The seeds are")
+
+comms,value = commNum(G)
+print(comms)
+seeds  = initialNodes(G,comms)
 print(seeds)

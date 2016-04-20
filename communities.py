@@ -48,7 +48,7 @@ def initialNodes(G,comms):
     maxList = []
     M = len(comms)
     Ij = [list([]) for _ in range(M)]
-    K = 2
+    K = 1
     # number of nodes
     N = nx.number_of_nodes(G)
     if N >= K :
@@ -63,8 +63,8 @@ def initialNodes(G,comms):
                     # edw mallon prepei na einai ypografima
                     union = linear_threshold(G,tempList,steps = -4)
                     noUnion = linear_threshold(G,I,steps = -4)
-                    VaU = calculateNodes(union,G)
-                    Va = calculateNodes(noUnion,G)
+                    VaU = communityCalculation(comms,m-1,union)
+                    Va = communityCalculation(comms,m-1,noUnion)
                     diff = VaU/N - Va/N
                     DRmList.extend([diff])
                     tempList = []
@@ -81,13 +81,12 @@ def initialNodes(G,comms):
                 DRmList = []
             # community numbering begins from 0 
             j = s[M][k] - 1
-            print(j)
             # for the j-th community
             for l in range(0,len(comms[j])):
                 umaxTempList = Ij[j] + [comms[j][l]]
                 jUnion = linear_threshold(G,umaxTempList,steps = -4)
                 jnoUnion = linear_threshold(G,Ij[j],steps= -4)
-                jVaU = calculateNodes(jUnion,G)
+                jVaU = communityCalculation(comms,j,jUnion)
                 jVa = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
                 maxList.extend([jDiff])

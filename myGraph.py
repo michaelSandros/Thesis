@@ -12,8 +12,8 @@ import sys
 # graph creation
 def createGraph():
         # lower and Upper bounds for random number of nodes
-        lower = 15
-        upper = 15
+        lower = 10
+        upper = 10
         random.seed(datetime.now())
 
         # lower <= Upper bound
