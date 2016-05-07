@@ -119,30 +119,31 @@ def randomThres(G):
         for e in G.nodes():
                 G.node[e]['threshold'] = random.uniform(0, 1)
 
-# the threshold for i-th node is threshold/degree_centrality(i)
-# if the node has degree_centrality = 0 then the threshold remains the same(random)
 def degreeCentralityThres(G):
         dc = nx.degree_centrality(G)
         for x  in G.nodes():
                 if(dc[x] != 0):
                         G.node[x]['threshold'] = dc[x]
+                        if(G.node[x]['threshold'] > 1):
+                             G.node[x]['threshold'] = 1.0
                         
-# the threshold for i-th node is threshold/degree_centrality(i)
-# if the node has degree_centrality = 0 then the threshold remains the same(random)
 def betweenCentralityThres(G):
         bc = nx.betweenness_centrality(G)
         for x  in G.nodes():
                 if(bc[x] != 0):
                         G.node[x]['threshold'] = bc[x]
-
+                        if(G.node[x]['threshold'] > 1):
+                             G.node[x]['threshold'] = 1.0
 def mixedThres(G):
         bc = nx.betweenness_centrality(G)
         dc = nx.degree_centrality(G)
         for x  in G.nodes():
                 if(bc[x] != 0 or dc[x] != 0):
-                     G.node[x]['threshold'] = 1/2*(bc[x] + dc[x])    
+                     G.node[x]['threshold'] = 1/2*(bc[x] + dc[x])
+                     if(G.node[x]['threshold'] > 1):
+                             G.node[x]['threshold'] = 1.0
+                             
         
-
 # communities Drawing
 def commDraw(G,values):
         nx.draw_spring(G, cmap = plt.get_cmap('jet'), node_color = values, with_labels=True)
