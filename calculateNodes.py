@@ -4,6 +4,8 @@ import networkx as nx
 def calculateNodes(p,G):
     totalActivated = 0
     totalNodes = len(G)
+    steps = len(p) - 1
+    # all nodes were the seeders of the diffusion
     if(len(p[0]) == totalNodes):
        totalActivated = totalNodes
     # if in the first step noone node is activated
@@ -15,7 +17,7 @@ def calculateNodes(p,G):
         for e in range  (1,len(p)):
             for k in range (0,len(p[e])):
                 totalActivated = totalActivated + 1
-    return totalActivated
+    return totalActivated,steps
 
 def communityCalculation(comms,number,outcome):
     totalActivated = 0
