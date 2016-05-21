@@ -1,6 +1,7 @@
 import networkx as nx
 
-# returns the total activated nodes of the diffusion
+# returns the total activated nodes of the diffusion and the steps
+# in the whole Graph
 def calculateNodes(p,G):
     totalActivated = 0
     totalNodes = len(G)
@@ -19,6 +20,8 @@ def calculateNodes(p,G):
                 totalActivated = totalActivated + 1
     return totalActivated,steps
 
+# returns the total activated nodes of the diffusion
+# in a single community
 def communityCalculation(comms,number,outcome):
     totalActivated = 0
     # converts the list of list to a single list
@@ -27,11 +30,10 @@ def communityCalculation(comms,number,outcome):
     for x in range(0,len(outcome[0])):
         k = outcome[0][x]
         flattend.remove(k)
+    # counter increment when a node in the community
+    # is activated by the diffusion
     for i in range(0,len(comms[number])):
         for x in range(0,len(flattend)):
             if(comms[number][i] == flattend[x]):
                 totalActivated = totalActivated + 1
-
     return totalActivated
-        
-            

@@ -5,6 +5,7 @@ from calculateNodes import *
 from linear_threshold import *
 import networkx as nx
 
+# each community has the label of the nodes they belong
 def commNum(G):
     # directed Graph to Undirected
     UG = G.to_undirected()
@@ -17,7 +18,6 @@ def commNum(G):
     values = partition.values()
     # max community number
     max_value = max(values)
-
     part = community.best_partition(UG)
     values = [part.get(node) for node in UG.nodes()]
     # for all communities with numbers from 0 to max_value
@@ -47,14 +47,16 @@ def initialNodes(G,comms):
     umaxTempList = []
     maxList = []
     M = len(comms)
+    # M empty lists
     Ij = [list([]) for _ in range(M)]
-    K = 1
+    K = 10
     # number of nodes
     N = nx.number_of_nodes(G)
     if N >= K :
         # 2-d (M+1)x(K+1) arrays
         R = [[0 for x in range(K+1)] for x in range(M+1)]
         s = [[0 for x in range(K+1)] for x in range(M+1)]
+        # find the K nodes with maximum influence
         for k in range(1,K+1):
             for m in range(1,M+1):
                 for l in range(0,len(comms[m-1])):
@@ -87,7 +89,7 @@ def initialNodes(G,comms):
                 jUnion = linear_threshold(G,umaxTempList,steps = -4)
                 jnoUnion = linear_threshold(G,Ij[j],steps= -4)
                 jVaU = communityCalculation(comms,j,jUnion)
-                jVa = calculateNodes(jnoUnion,G)
+                jVa,steps = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
                 maxList.extend([jDiff])
             # max value of the list
@@ -110,4 +112,5 @@ def initialNodes(G,comms):
     else:
         print ("ERROR: K must be lower or equal to the number of nodes")
         sys.exit()
-
+            
+            
