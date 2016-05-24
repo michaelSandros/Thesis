@@ -92,23 +92,14 @@ def customGraph():
 
 # graph from real Twitter data
 def realGraph():
-    f1 = open('nodesFile.txt', 'r')
-    f2 = open('newFile.txt', 'w')
-
+        
     listofNodes = []
-
     G = nx.DiGraph()
     labels = {}
 
-    # change space with newline
-    for line in f1:
-        f2.write(line.replace(' ', '\n'))
-    f2.close()
-    f1.close()
-
     # open f2 for reading
     f2 = open('newFile.txt', 'r')
-    # each line( a node number) of the newFile is extended to a list
+    # each line (a node number) of the newFile is extended to a list
     listofEdges = [line.rstrip() for line in open('newFile.txt')]
     f2.close()
 
@@ -130,18 +121,33 @@ def realGraph():
         start = list(labels.keys())[list(labels.values()).index(listofEdges[y+1])]
         # retrieve the label of the node destination
         end = list(labels.keys())[list(labels.values()).index(listofEdges[y])]
-        G.add_edge(start,end)
+        G.add_edge(start,end, influence = 1)
 
     # total influence for all nodes
     totalInfluence =  [[0] for x in range(len(listofNodes))]
-    
+
+    # add the influences at the existing edges
+    # for a given destination node the sum of all influences must be lower or equel to 1
+    '''
     for n in range(0,len(listofNodes)):
         end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
         totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
+    '''
 
     #random theshold for the nodes
     randomThres(G)
     return G,labels
+
+def edges2Nodes():
+    f1 = open('nodesFile.txt', 'r')
+    f2 = open('newFile.txt', 'w')
+
+    # change space with newline
+    for line in f1:
+        f2.write(line.replace(' ', '\n'))
+    f2.close()
+    f1.close()
+
 
 def checkInfluence(G,destination,influence):
     nodeSum = 0
@@ -185,6 +191,7 @@ def randomThres(G):
         for e in G.nodes():
                 G.node[e]['threshold'] = random.uniform(0, 1)
 
+# degree centrality threshold
 def degreeCentralityThres(G):
         dc = nx.degree_centrality(G)
         for x  in G.nodes():
@@ -192,7 +199,8 @@ def degreeCentralityThres(G):
                         G.node[x]['threshold'] = dc[x]
                         if(G.node[x]['threshold'] > 1):
                              G.node[x]['threshold'] = 1.0
-                        
+
+# betweeness Centrality Threshold"                        
 def betweenCentralityThres(G):
         bc = nx.betweenness_centrality(G)
         for x  in G.nodes():
@@ -200,6 +208,7 @@ def betweenCentralityThres(G):
                         G.node[x]['threshold'] = bc[x]
                         if(G.node[x]['threshold'] > 1):
                              G.node[x]['threshold'] = 1.0
+# mixed Centrality Threshold
 def mixedThres(G):
         bc = nx.betweenness_centrality(G)
         dc = nx.degree_centrality(G)

@@ -1,6 +1,7 @@
 import community
 import random
 import sys
+import operator
 from calculateNodes import *
 from linear_threshold import *
 import networkx as nx
@@ -49,7 +50,7 @@ def initialNodes(G,comms):
     M = len(comms)
     # M empty lists
     Ij = [list([]) for _ in range(M)]
-    K = 10
+    K = 3
     # number of nodes
     N = nx.number_of_nodes(G)
     if N >= K :
@@ -83,34 +84,36 @@ def initialNodes(G,comms):
                 DRmList = []
             # community numbering begins from 0 
             j = s[M][k] - 1
-            # for the j-th community
-            for l in range(0,len(comms[j])):
-                umaxTempList = Ij[j] + [comms[j][l]]
-                jUnion = linear_threshold(G,umaxTempList,steps = -4)
-                jnoUnion = linear_threshold(G,Ij[j],steps= -4)
-                jVaU = communityCalculation(comms,j,jUnion)
-                jVa,steps = calculateNodes(jnoUnion,G)
-                jDiff = jVaU/N - jVa/N
-                maxList.extend([jDiff])
-            # max value of the list
-            m = max(maxList)
-            # index(-es) of the max value
-            maxIndex = [i for i, j in enumerate(maxList) if j == m]
-            # if there are more than one index with max value
-            # get a random index
-            randommaxIndex = random.choice(maxIndex)
-            # get the node with that index
-            umax = comms[j][randommaxIndex]
-            # extend the lists with the node
-            I.extend([umax])
-            Ij[j].extend([umax])
-            # delete the node of the j-th community 
-            comms[j].remove(umax)
-            maxList = []
-        # retun the seeders
         return I
     else:
         print ("ERROR: K must be lower or equal to the number of nodes")
         sys.exit()
             
-            
+def perComm(G,comms, e):
+    interComms = comms
+    Ij = []
+    d = {}
+    K = 3
+    N = G.number_of_nodes()
+    maxList = []
+    # if K >= N then the seeders are all the nodes in the community e
+    if K >= N:
+        Ij = interComms[e]
+    else:
+        for i in range(0,K):
+            for x in range(0,len(interComms[e])):
+                u = interComms[e][x]
+                temp = Ij + [u]
+                diff = linear_threshold(G,temp, steps = -4)
+                total = communityCalculation(comms,e, diff)
+                d[interComms[e][x]] = total
+            # returns the max value of the dictionary
+            highest = max(d.values())
+            # return a list of nodes that have the max value
+            maxList = [k for k,v in d.items() if v == highest]
+            # get a random node
+            umax = random.choice(maxList)
+            Ij = Ij + [umax]
+            interComms[e].remove(umax)
+            d = {}
+    return Ij
