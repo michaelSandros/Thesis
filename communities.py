@@ -43,6 +43,7 @@ def commNum(G):
 def initialNodes(G,comms):
     # lists for algorithm
     I = []
+    newComms = []
     DRmList = []
     tempList = []
     umaxTempList = []
@@ -82,31 +83,58 @@ def initialNodes(G,comms):
                 else:
                     s[m][k] = m
                 DRmList = []
-            # community numbering begins from 0 
+            # community numbering begins from 0
             j = s[M][k] - 1
+            newComms = []
+            newComms.extend(comms[j])
+            d = {}
+            for l in range(0,len(newComms)):
+                umaxTempList = Ij[j] + [newComms[l]]
+                jUnion = linear_threshold(G,umaxTempList,steps = -4)
+                jnoUnion = linear_threshold(G,Ij[j],steps= -4)
+                jVaU = communityCalculation(comms,j,jUnion)
+                jVa,steps = calculateNodes(jnoUnion,G)
+                jDiff = jVaU/N - jVa/N
+                d[newComms[l]] = jDiff
+            # returns the max value of the dictionary
+            highest = max(d.values())
+            # return a list of nodes that have the max value
+            maxList = [k for k,v in d.items() if v == highest]
+            # get a random node
+            umax = random.choice(maxList)
+            Ij[j] = Ij[j] + [umax]
+            newComms.remove(umax)
+            maxList = []
+            umaxTempList = []
+            I = I + [umax]
+            d = {}
         return I
     else:
         print ("ERROR: K must be lower or equal to the number of nodes")
         sys.exit()
             
-def perComm(G,comms, e):
-    interComms = comms
+def perComm(G, comms, e, wholeGraph):
+    interComms = []
+    interComms.extend(comms[e])
     Ij = []
     d = {}
     K = 3
+    NoN = wholeGraph.number_of_nodes()
     N = G.number_of_nodes()
     maxList = []
     # if K >= N then the seeders are all the nodes in the community e
     if K >= N:
-        Ij = interComms[e]
+        Ij = interComms
     else:
         for i in range(0,K):
-            for x in range(0,len(interComms[e])):
-                u = interComms[e][x]
+            for x in range(0,len(interComms)):
+                u = interComms[x]
                 temp = Ij + [u]
-                diff = linear_threshold(G,temp, steps = -4)
-                total = communityCalculation(comms,e, diff)
-                d[interComms[e][x]] = total
+                union = linear_threshold(G,temp, steps = -4)
+                noUnion = linear_threshold(G,Ij,steps = -4)
+                unionTotal = communityCalculation(comms,e, union)
+                total, steps = calculateNodes(noUnion,wholeGraph)
+                d[interComms[x]] = unionTotal/NoN - total/NoN
             # returns the max value of the dictionary
             highest = max(d.values())
             # return a list of nodes that have the max value
@@ -114,6 +142,6 @@ def perComm(G,comms, e):
             # get a random node
             umax = random.choice(maxList)
             Ij = Ij + [umax]
-            interComms[e].remove(umax)
             d = {}
+            interComms.remove(umax)
     return Ij

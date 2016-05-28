@@ -8,7 +8,7 @@ from communities import *
 from plots import *
 from fileCopy import*
 
-#fileCopy()
+fileCopy()
 edges2Nodes()
 iterations = 20
 active1 = [[0] for x in range(0,iterations)]
