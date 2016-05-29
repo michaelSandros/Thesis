@@ -47,8 +47,12 @@ while True:
                 ch2 = int(input("Please enter an option.\n"))
                 if (ch2 == 1):
                     H = G.subgraph(comms[0])
-                    seeds = initialNodes(G,comms)
+                    print(comms)
+                    print(comms1)
+                    seeds = initialNodes(G,comms,comms1)
                     print(seeds)
+                    print(comms)
+                    print(comms1)
                 elif (ch2 == 2):
                     print("Percentage.\n")
                 else:

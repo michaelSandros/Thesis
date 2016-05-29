@@ -40,7 +40,7 @@ def commNum(G):
     return (communities,values)
 
 # CGA Algorithm
-def initialNodes(G,comms):
+def initialNodes(G,comms,comms1):
     # lists for algorithm
     I = []
     DRmList = []
@@ -94,7 +94,7 @@ def initialNodes(G,comms):
                 umaxTempList = Ij[j] + [tempComms[l]]
                 jUnion = linear_threshold(G,umaxTempList,steps = -4)
                 jnoUnion = linear_threshold(G,Ij[j],steps= -4)
-                jVaU = communityCalculation(comms,j,jUnion)
+                jVaU = communityCalculation(comms1,j,jUnion)
                 jVa,steps = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
                 d[tempComms[l]] = jDiff
