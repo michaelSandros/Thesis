@@ -12,8 +12,8 @@ import sys
 # random graph creation
 def createGraph():
         # lower and Upper bounds for random number of nodes
-        lower = 3
-        upper = 3
+        lower = 50
+        upper = 50
         random.seed(datetime.now())
         # lower <= Upper bound
         if lower <= upper:
@@ -115,7 +115,8 @@ def realGraph():
     for x in range(0,len(listofNodes)):
         G.add_node(x)
         labels[x] = listofNodes[x]
-
+    randomThres(G)
+    
     for y in range(0,len(listofEdges)-1,2):
         # retrieve the label of the node source
         start = list(labels.keys())[list(labels.values()).index(listofEdges[y+1])]
@@ -208,13 +209,14 @@ def betweenCentralityThres(G):
                         G.node[x]['threshold'] = bc[x]
                         if(G.node[x]['threshold'] > 1):
                              G.node[x]['threshold'] = 1.0
+                        
 # mixed Centrality Threshold
 def mixedThres(G):
         bc = nx.betweenness_centrality(G)
         dc = nx.degree_centrality(G)
         for x  in G.nodes():
                 if(bc[x] != 0 or dc[x] != 0):
-                     G.node[x]['threshold'] = 1/2*(bc[x] + dc[x])
+                     G.node[x]['threshold'] = (1/2*(bc[x] + dc[x]))/max(bc[x],dc[x])
                      if(G.node[x]['threshold'] > 1):
                              G.node[x]['threshold'] = 1.0
                              

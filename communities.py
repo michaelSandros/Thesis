@@ -43,7 +43,6 @@ def commNum(G):
 def initialNodes(G,comms):
     # lists for algorithm
     I = []
-    newComms = []
     DRmList = []
     tempList = []
     umaxTempList = []
@@ -51,7 +50,7 @@ def initialNodes(G,comms):
     M = len(comms)
     # M empty lists
     Ij = [list([]) for _ in range(M)]
-    K = 3
+    K = 2
     # number of nodes
     N = nx.number_of_nodes(G)
     if N >= K :
@@ -85,17 +84,20 @@ def initialNodes(G,comms):
                 DRmList = []
             # community numbering begins from 0
             j = s[M][k] - 1
-            newComms = []
-            newComms.extend(comms[j])
             d = {}
-            for l in range(0,len(newComms)):
-                umaxTempList = Ij[j] + [newComms[l]]
+
+            tempComms = []
+            tempComms.extend(comms[j])
+
+            # find the most influential node in the j-th community
+            for l in range(0,len(tempComms)):
+                umaxTempList = Ij[j] + [tempComms[l]]
                 jUnion = linear_threshold(G,umaxTempList,steps = -4)
                 jnoUnion = linear_threshold(G,Ij[j],steps= -4)
                 jVaU = communityCalculation(comms,j,jUnion)
                 jVa,steps = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
-                d[newComms[l]] = jDiff
+                d[tempComms[l]] = jDiff
             # returns the max value of the dictionary
             highest = max(d.values())
             # return a list of nodes that have the max value
@@ -103,7 +105,7 @@ def initialNodes(G,comms):
             # get a random node
             umax = random.choice(maxList)
             Ij[j] = Ij[j] + [umax]
-            newComms.remove(umax)
+            comms[j].remove(umax)
             maxList = []
             umaxTempList = []
             I = I + [umax]
@@ -118,7 +120,7 @@ def perComm(G, comms, e, wholeGraph):
     interComms.extend(comms[e])
     Ij = []
     d = {}
-    K = 3
+    K = 2
     NoN = wholeGraph.number_of_nodes()
     N = G.number_of_nodes()
     maxList = []
