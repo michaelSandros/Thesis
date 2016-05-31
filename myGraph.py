@@ -12,8 +12,9 @@ import sys
 # random graph creation
 def createGraph():
         # lower and Upper bounds for random number of nodes
-        lower = 50
-        upper = 50
+        lower = 4
+        upper = 4
+        listofNodes = []
         random.seed(datetime.now())
         # lower <= Upper bound
         if lower <= upper:
@@ -26,26 +27,32 @@ def createGraph():
         G = nx.DiGraph()
         labels = {}
         # node insertion and random threshold for the node
-        for e in range(n):
+        for e in range(0,n):
                 G.add_node(e)
                 labels[e] = e
+                listofNodes.extend([e])
         randomThres(G)
-
+        print(totalInfluence)
         # randrom Edges and random influence
-        for e in G.nodes():
+        for n in G.nodes():
                 for k in G.nodes():
                         v = randint(0,10)
-                        if e != k and v >= 5:
-                                random.seed(datetime.now())
-                                i = random.uniform(0, 1)
-                                G.add_edge(e,k,influence = i)
+                        if n != k and v >= 5:
+                                G.add_edge(n,k)
                         else:
                                 continue
+                        
+        for n in range(0,len(listofNodes)):
+                end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
+                totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
+        
+        nx.set_node_attributes(G, 'activated', False)
         return (G,labels)
 
 # custom graph creation
 def customGraph():
         random.seed(datetime.now())
+        listofNodes = []
         # number of nodes
         N = 10
         G = nx.DiGraph()
@@ -53,41 +60,47 @@ def customGraph():
         for e in range(0,N):
                 G.add_node(e)
                 labels[e] = e
+                listofNodes.extend([e])
+        totalInfluence =  [[0] for x in range(G.number_of_nodes())]
         randomThres(G)
         for x in range(0,N):
                 i = random.uniform(0,1)
                 if (x == 0):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
                         i = random.uniform(0,1)
-                        G.add_edge(x,x + 2,influence = i)
+                        G.add_edge(x,x + 2)
                 if (x == 1):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
                         i = random.uniform(0,1)
-                        G.add_edge(x,x + 2,influence = i)
+                        G.add_edge(x,x + 2)
                 if (x == 2):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
                 if (x == 3):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
                         i = random.uniform(0,1)
-                        G.add_edge(x,x + 2,influence = i)
+                        G.add_edge(x,x + 2)
                         i = random.uniform(0,1)
-                        G.add_edge(x,x + 3,influence = i)
+                        G.add_edge(x,x + 3)
                 if (x == 4):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
                         i = random.uniform(0,1)
-                        G.add_edge(x,x + 2,influence = i)
+                        G.add_edge(x,x + 2)
                 if (x == 5):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
                 if (x == 6):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
                         i = random.uniform(0,1)
-                        edgeList = G.add_edge(x,x + 2,influence = i)
+                        edgeList = G.add_edge(x,x + 2)
                         i = random.uniform(0,1)
-                        G.add_edge(x,x + 3,influence = i)
+                        G.add_edge(x,x + 3)
                 if (x == 7):
-                        G.add_edge(x,x + 2,influence = i)
+                        G.add_edge(x,x + 2)
                 if(x == 8):
-                        G.add_edge(x,x + 1,influence = i)
+                        G.add_edge(x,x + 1)
+                
+        for n in range(0,len(listofNodes)):
+                end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
+                totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
         return (G,labels)
 
 # graph from real Twitter data
@@ -110,39 +123,37 @@ def realGraph():
     for i in listofEdges:
       if i not in listofNodes:
         listofNodes.append(i)
-
+        
     # insert nodes with labels
     for x in range(0,len(listofNodes)):
         G.add_node(x)
         labels[x] = listofNodes[x]
-    randomThres(G)
-    
+        
     for y in range(0,len(listofEdges)-1,2):
         # retrieve the label of the node source
         start = list(labels.keys())[list(labels.values()).index(listofEdges[y+1])]
         # retrieve the label of the node destination
         end = list(labels.keys())[list(labels.values()).index(listofEdges[y])]
-        G.add_edge(start,end, influence = 1)
+        G.add_edge(start,end,influence = 0.5)
 
     # total influence for all nodes
     totalInfluence =  [[0] for x in range(len(listofNodes))]
 
+    nx.set_node_attributes(G, 'activated', False)
     # add the influences at the existing edges
     # for a given destination node the sum of all influences must be lower or equel to 1
-    '''
     for n in range(0,len(listofNodes)):
         end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
         totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
-    '''
 
     #random theshold for the nodes
     randomThres(G)
     return G,labels
 
 def edges2Nodes():
+    
     f1 = open('nodesFile.txt', 'r')
     f2 = open('newFile.txt', 'w')
-
     # change space with newline
     for line in f1:
         f2.write(line.replace(' ', '\n'))
@@ -150,18 +161,25 @@ def edges2Nodes():
     f1.close()
 
 
+
 def checkInfluence(G,destination,influence):
     nodeSum = 0
     for e in G.edges():
             if (e[1] == destination):
                     while True:
-                            i = random.uniform(0,1)
+                            i = random.uniform(0,1)/G.in_degree(e[1])
                             if(nodeSum + i <= 1):
                                     G[e[0]][e[1]]['influence'] = i
                                     nodeSum = nodeSum + i
                                     break
     return nodeSum
     
+def addProbs(G):
+      for e in G.edges():
+           del(G[e[0]][e[1]]['influence'])
+           random.seed(datetime.now())
+           i = random.uniform(0,1)
+           G[e[0]][e[1]]['act_prob'] = i
 
 # drawing of the graph
 def graphDraw(G,labels):

@@ -2,8 +2,10 @@ import community
 import random
 import sys
 import operator
+from myGraph import *
 from calculateNodes import *
 from linear_threshold import *
+from independent_cascade import *
 import networkx as nx
 
 # each community has the label of the nodes they belong
@@ -40,7 +42,7 @@ def commNum(G):
     return (communities,values)
 
 # CGA Algorithm
-def initialNodes(G,comms,comms1):
+def initialNodes(G,comms,flag):
     # lists for algorithm
     I = []
     DRmList = []
@@ -53,6 +55,7 @@ def initialNodes(G,comms,comms1):
     K = 2
     # number of nodes
     N = nx.number_of_nodes(G)
+    comms1 = duplicateComms(comms)
     if N >= K :
         # 2-d (M+1)x(K+1) arrays
         R = [[0 for x in range(K+1)] for x in range(M+1)]
@@ -60,12 +63,16 @@ def initialNodes(G,comms,comms1):
         # find the K nodes with maximum influence
         for k in range(1,K+1):
             for m in range(1,M+1):
-                for l in range(0,len(comms[m-1])):
+                for l in range(0,len(comms1[m-1])):
                     # union I with each node of the community
-                    tempList = I + [comms[m-1][l]]
+                    tempList = I + [comms1[m-1][l]]
                     # edw mallon prepei na einai ypografima
-                    union = linear_threshold(G,tempList,steps = -4)
-                    noUnion = linear_threshold(G,I,steps = -4)
+                    if (flag == 1):
+                        union = linear_threshold(G,tempList,steps = -4)
+                        noUnion = linear_threshold(G,I,steps = -4)
+                    else:
+                        union = independent_cascade(G,tempList,steps = -4)
+                        noUnion = independent_cascade(G,I,steps = -4)
                     VaU = communityCalculation(comms,m-1,union)
                     Va = communityCalculation(comms,m-1,noUnion)
                     diff = VaU/N - Va/N
@@ -86,18 +93,19 @@ def initialNodes(G,comms,comms1):
             j = s[M][k] - 1
             d = {}
 
-            tempComms = []
-            tempComms.extend(comms[j])
-
             # find the most influential node in the j-th community
-            for l in range(0,len(tempComms)):
-                umaxTempList = Ij[j] + [tempComms[l]]
-                jUnion = linear_threshold(G,umaxTempList,steps = -4)
-                jnoUnion = linear_threshold(G,Ij[j],steps= -4)
-                jVaU = communityCalculation(comms1,j,jUnion)
+            for l in range(0,len(comms1[j])):
+                umaxTempList = Ij[j] + [comms1[j][l]]
+                if flag == 1:
+                    jUnion = linear_threshold(G,umaxTempList,steps = -4)
+                    jnoUnion = linear_threshold(G,Ij[j],steps= -4)
+                else:
+                    jUnion = independent_cascade(G,umaxTempList,steps = -4)
+                    jnoUnion = independent_cascade(G,Ij[j],steps= -4)
+                jVaU = communityCalculation(comms,j,jUnion)
                 jVa,steps = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
-                d[tempComms[l]] = jDiff
+                d[comms1[j][l]] = jDiff
             # returns the max value of the dictionary
             highest = max(d.values())
             # return a list of nodes that have the max value
@@ -105,22 +113,23 @@ def initialNodes(G,comms,comms1):
             # get a random node
             umax = random.choice(maxList)
             Ij[j] = Ij[j] + [umax]
-            comms[j].remove(umax)
+            comms1[j].remove(umax)
             maxList = []
             umaxTempList = []
             I = I + [umax]
             d = {}
+        print(comms1)
         return I
     else:
         print ("ERROR: K must be lower or equal to the number of nodes")
         sys.exit()
             
-def perComm(G, comms, e, wholeGraph):
+def perComm(G, comms, e, wholeGraph,flag):
     interComms = []
     interComms.extend(comms[e])
     Ij = []
     d = {}
-    K = 2
+    K = 1
     NoN = wholeGraph.number_of_nodes()
     N = G.number_of_nodes()
     maxList = []
@@ -132,8 +141,12 @@ def perComm(G, comms, e, wholeGraph):
             for x in range(0,len(interComms)):
                 u = interComms[x]
                 temp = Ij + [u]
-                union = linear_threshold(G,temp, steps = -4)
-                noUnion = linear_threshold(G,Ij,steps = -4)
+                if flag == 1:
+                    union = linear_threshold(G,temp, steps = -4)
+                    noUnion = linear_threshold(G,Ij,steps = -4)
+                else:
+                    union = independent_cascade(G,temp, steps = -4)
+                    noUnion = independent_cascade(G,Ij,steps = -4)
                 unionTotal = communityCalculation(comms,e, union)
                 total, steps = calculateNodes(noUnion,wholeGraph)
                 d[interComms[x]] = unionTotal/NoN - total/NoN
@@ -147,3 +160,101 @@ def perComm(G, comms, e, wholeGraph):
             d = {}
             interComms.remove(umax)
     return Ij
+
+def duplicateComms(comms):
+    M = len(comms)
+    comms1 = [list([]) for _ in range(M)]
+    for x in range(0,len(comms)):
+        for e in range(0,len(comms[x])):
+            comms1[x].extend([comms[x][e]])
+    return comms1
+
+
+def Borda(G,comms,x):
+    ddc = {}
+    dcc = {}
+    dbc = {}
+    ddcList = []
+    dccList = []
+    dbcList = []
+    H = G.subgraph(comms[x])
+    degreeC = nx.degree_centrality(H)
+    closenessC = nx.closeness_centrality(H)
+    betweennessC = nx.betweenness_centrality(H)
+    for l in range(0,len(comms[x])):
+        ddc[comms[x][l]] = degreeC[comms[x][l]]
+        dcc[comms[x][l]] = closenessC[comms[x][l]]
+        dbc[comms[x][l]] = betweennessC[comms[x][l]]
+    # get values
+    ddc_values = list(ddc.values())
+    dcc_values = list(dcc.values())
+    dbc_values = list(dbc.values())
+    
+    # descending order
+    sorted_ddc = sorted(ddc_values, reverse = True)
+    sorted_dcc = sorted(dcc_values, reverse = True)
+    sorted_dbc = sorted(dbc_values, reverse = True)
+    for k in range(0,len(sorted_ddc)):
+        key = list(ddc.keys())[list(ddc.values()).index(sorted_ddc[k])]
+        ddcList.extend([key])
+        # delete keys to prevent the appereance of 2 or more same nodes
+        del ddc[key]
+
+    for k in range(0,len(sorted_dcc)):
+        key = list(dcc.keys())[list(dcc.values()).index(sorted_dcc[k])]
+        dccList.extend([key])
+        # delete keys to prevent the appereance of 2 or more same nodes
+        del dcc[key]
+
+    for k in range(0,len(sorted_dbc)):
+        key = list(dbc.keys())[list(dbc.values()).index(sorted_dbc[k])]
+        dbcList.extend([key])
+        # delete keys to prevent the appereance of 2 or more same nodes
+        del dbc[key]
+        
+    votes = len(comms[x]) - 1
+
+    dc = {}
+    bc = {}
+    cc = {}
+    
+    for k in range(0,len(ddcList)):
+        totalVotes = votes - k
+        dc[ddcList[k]] = totalVotes
+
+    for k in range(0,len(dbcList)):
+        totalVotes = votes - k
+        bc[dbcList[k]] = totalVotes
+
+    for k in range(0,len(dccList)):
+        totalVotes = votes - k
+        cc[dccList[k]] = totalVotes
+
+    finalList = []
+    total = {}
+    # total votes
+    for key in dc:
+        total[key] = dc[key] + bc[key] + cc[key]
+
+    # retun all nodes in desceding 
+    total_values = list(total.values())
+    sorted_total = sorted(total_values, reverse = True)
+    for k in range(0,len(sorted_total)):
+        key = list(total.keys())[list(total.values()).index(sorted_total[k])]
+        finalList.extend([key])
+        # delete keys to prevent the appereance of 2 or more same nodes
+        del total[key]
+
+    return finalList
+
+def targetNodes(G,H,e,comms,outcome):
+    print(outcome)
+    
+def diffSpeed(G, l_dash):
+    infList = []
+    print(G.number_of_edges())
+    for e in G.edges():
+        infList.extend([G[e[0]][e[1]]['influence']])
+    wmax = max(infList)
+    wmin = min(infList)
+	
