@@ -124,7 +124,7 @@ def realGraph():
         start = list(labels.keys())[list(labels.values()).index(listofEdges[y+1])]
         # retrieve the label of the node destination
         end = list(labels.keys())[list(labels.values()).index(listofEdges[y])]
-        G.add_edge(start,end,influence = 0.5)
+        G.add_edge(start,end)
 
     # total influence for all nodes
     totalInfluence =  [[0] for x in range(len(listofNodes))]

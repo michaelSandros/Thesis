@@ -169,7 +169,7 @@ def duplicateComms(comms):
             comms1[x].extend([comms[x][e]])
     return comms1
 
-
+# borda counting
 def Borda(G,comms,x):
     ddc = {}
     dcc = {}
@@ -247,13 +247,3 @@ def Borda(G,comms,x):
 
     return finalList
 
-def targetNodes(G,H,e,comms,outcome):
-    print(outcome)
-    
-def diffSpeed(G, l_dash):
-    infList = []
-    print(G.number_of_edges())
-    for e in G.edges():
-        infList.extend([G[e[0]][e[1]]['influence']])
-    wmax = max(infList)
-    wmin = min(infList)
