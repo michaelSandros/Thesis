@@ -10,10 +10,10 @@ import random
 import sys
 
 # random graph creation
-def createGraph():
+def randomGraph():
         # lower and Upper bounds for random number of nodes
-        lower = 4
-        upper = 4
+        lower = 6
+        upper = 6
         listofNodes = []
         random.seed(datetime.now())
         # lower <= Upper bound
@@ -31,8 +31,8 @@ def createGraph():
                 G.add_node(e)
                 labels[e] = e
                 listofNodes.extend([e])
-        randomThres(G)
-        print(totalInfluence)
+        # total influence for all nodes
+        totalInfluence =  [[0] for x in range(len(listofNodes))]
         # randrom Edges and random influence
         for n in G.nodes():
                 for k in G.nodes():
@@ -41,13 +41,8 @@ def createGraph():
                                 G.add_edge(n,k)
                         else:
                                 continue
-                        
-        for n in range(0,len(listofNodes)):
-                end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
-                totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
         
-        nx.set_node_attributes(G, 'activated', False)
-        return (G,labels)
+        return (G,labels,listofNodes)
 
 # custom graph creation
 def customGraph():
@@ -62,7 +57,6 @@ def customGraph():
                 labels[e] = e
                 listofNodes.extend([e])
         totalInfluence =  [[0] for x in range(G.number_of_nodes())]
-        randomThres(G)
         for x in range(0,N):
                 i = random.uniform(0,1)
                 if (x == 0):
@@ -97,11 +91,7 @@ def customGraph():
                         G.add_edge(x,x + 2)
                 if(x == 8):
                         G.add_edge(x,x + 1)
-                
-        for n in range(0,len(listofNodes)):
-                end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
-                totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
-        return (G,labels)
+        return (G,labels,listofNodes)
 
 # graph from real Twitter data
 def realGraph():
@@ -139,16 +129,7 @@ def realGraph():
     # total influence for all nodes
     totalInfluence =  [[0] for x in range(len(listofNodes))]
 
-    nx.set_node_attributes(G, 'activated', False)
-    # add the influences at the existing edges
-    # for a given destination node the sum of all influences must be lower or equel to 1
-    for n in range(0,len(listofNodes)):
-        end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
-        totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
-
-    #random theshold for the nodes
-    randomThres(G)
-    return G,labels
+    return G,labels,listofNodes
 
 def edges2Nodes():
     
@@ -219,7 +200,7 @@ def degreeCentralityThres(G):
                         if(G.node[x]['threshold'] > 1):
                              G.node[x]['threshold'] = 1.0
 
-# betweeness Centrality Threshold"                        
+# betweeness Centrality Threshold                    
 def betweenCentralityThres(G):
         bc = nx.betweenness_centrality(G)
         for x  in G.nodes():
@@ -295,3 +276,31 @@ def diffNumbers(outcome,labels):
                         print()
                 else:
                         print("All other nodes stayed inactive")
+def Sizes(G,outcome):
+        # set activated flag for all nodes to False
+        nx.set_node_attributes(G, 'activated', False)
+        counter = 0
+        targetCounter = 0
+        activatedList = []
+        targetNodes = [[0] for x in range(0,len(outcome))]
+        activeNodes = [[0] for x in range(0,len(outcome))]
+        
+        active = [[0] for x in range(0,len(outcome))]
+        # find the activated set of nodes in each step of the diffusion
+        for x in range(0,len(outcome) - 1):
+                for e in range(0,len(outcome[x])):
+                       counter = counter + 1;
+                activeNodes[x + 1] = [counter]
+                
+        for x in range(0,len(outcome) - 1):
+                counter = 0
+                activatedList.extend(outcome[x])
+                for n in range(0,len(activatedList)):
+                        G.node[activatedList[n]]['activated'] = True
+                for i in range(0,len(activatedList)):
+                        for e in G.edges():
+                                if (e[0] == activatedList[i]):
+                                        if(G.node[e[1]]['activated'] == False):
+                                                counter = counter + 1
+                targetNodes[x + 1] = [counter]
+        return activeNodes,targetNodes

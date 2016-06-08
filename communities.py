@@ -129,7 +129,7 @@ def perComm(G, comms, e, wholeGraph,flag):
     interComms.extend(comms[e])
     Ij = []
     d = {}
-    K = 1
+    K = 2
     NoN = wholeGraph.number_of_nodes()
     N = G.number_of_nodes()
     maxList = []
@@ -257,4 +257,3 @@ def diffSpeed(G, l_dash):
         infList.extend([G[e[0]][e[1]]['influence']])
     wmax = max(infList)
     wmin = min(infList)
-	
