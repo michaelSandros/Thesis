@@ -295,13 +295,13 @@ def Sizes(G,outcome):
                 
         # find the target set of nodes in each step of the diffusion        
         for x in range(0,len(outcome) - 1):
+                nx.set_node_attributes(G, 'counted', False)
                 counter = 0
                 # extend the list with the new activated nodes
                 activatedList.extend(outcome[x])
                 # set the activated flag of the nodes to True when the node is active
                 for n in range(0,len(activatedList)):
-                        G.node[activatedList[n]]['activated'] = True
-                        
+                        G.node[activatedList[n]]['activated'] = True                   
                 # for all elements in the list
                 for i in range(0,len(activatedList)):
                         # for all edges
@@ -310,7 +310,9 @@ def Sizes(G,outcome):
                                 if (e[0] == activatedList[i]):
                                         # if the node is not activated
                                         if(G.node[e[1]]['activated'] == False):
-                                                #increment counter
-                                                counter = counter + 1
+                                                if(G.node[e[1]]['counted'] == False):
+                                                        #increment counter
+                                                        counter = counter + 1
+                                                        G.node[e[1]]['counted'] = True
                 targetNodes[x + 1] = [counter]
         return activeNodes,targetNodes
