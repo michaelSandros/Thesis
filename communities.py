@@ -197,19 +197,19 @@ def Borda(G,comms,x):
     for k in range(0,len(sorted_ddc)):
         key = list(ddc.keys())[list(ddc.values()).index(sorted_ddc[k])]
         ddcList.extend([key])
-        # delete keys to prevent the appereance of 2 or more same nodes
+        # delete keys to prevent the appereance of the same node multiple times
         del ddc[key]
 
     for k in range(0,len(sorted_dcc)):
         key = list(dcc.keys())[list(dcc.values()).index(sorted_dcc[k])]
         dccList.extend([key])
-        # delete keys to prevent the appereance of 2 or more same nodes
+        # delete keys to prevent the appereance of the same node multiple times
         del dcc[key]
 
     for k in range(0,len(sorted_dbc)):
         key = list(dbc.keys())[list(dbc.values()).index(sorted_dbc[k])]
         dbcList.extend([key])
-        # delete keys to prevent the appereance of 2 or more same nodes
+        # delete keys to prevent the appereance of the same node multiple times
         del dbc[key]
         
     votes = len(comms[x]) - 1
@@ -235,7 +235,7 @@ def Borda(G,comms,x):
     # total votes
     for key in dc:
         total[key] = dc[key] + bc[key] + cc[key]
-
+        
     # retun all nodes in desceding 
     total_values = list(total.values())
     sorted_total = sorted(total_values, reverse = True)
@@ -247,3 +247,27 @@ def Borda(G,comms,x):
 
     return finalList
 
+def communityDensity(G,comms):
+    dens = {}
+    dens1 = {}
+    densSorted = []
+    finalList = []
+    final_dict = {}
+    for e in range(0,len(comms)):
+        H = G.subgraph(comms[e])
+        dens[e] = nx.density(H)
+        dens1[e] = nx.density(H)
+    # get values
+    dens_values = list(dens.values())
+    sorted_dens = sorted(dens_values, reverse = True)
+    for k in range(0,len(sorted_dens)):
+        key = list(dens.keys())[list(dens.values()).index(sorted_dens[k])]
+        densSorted.extend([key])
+        # delete keys to prevent the appereance of the same node multiple times
+        del dens[key]
+        
+    for e in range(0,len(densSorted)):
+        x = densSorted[e]
+        finalList.extend([x])
+    
+    return finalList

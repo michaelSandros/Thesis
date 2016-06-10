@@ -12,8 +12,8 @@ import sys
 # random graph creation
 def randomGraph():
         # lower and Upper bounds for random number of nodes
-        lower = 6
-        upper = 6
+        lower = 60
+        upper = 60
         listofNodes = []
         random.seed(datetime.now())
         # lower <= Upper bound
@@ -142,7 +142,6 @@ def edges2Nodes():
     f1.close()
 
 
-
 def checkInfluence(G,destination,influence):
     nodeSum = 0
     for e in G.edges():
@@ -157,7 +156,8 @@ def checkInfluence(G,destination,influence):
     
 def addProbs(G):
       for e in G.edges():
-           del(G[e[0]][e[1]]['influence'])
+           if ('influence' in G[e[0]][e[1]]):
+                   del(G[e[0]][e[1]]['influence'])
            random.seed(datetime.now())
            i = random.uniform(0,1)
            G[e[0]][e[1]]['act_prob'] = i
@@ -310,6 +310,7 @@ def Sizes(G,outcome):
                                 if (e[0] == activatedList[i]):
                                         # if the node is not activated
                                         if(G.node[e[1]]['activated'] == False):
+                                                # if the node does not already counted
                                                 if(G.node[e[1]]['counted'] == False):
                                                         #increment counter
                                                         counter = counter + 1

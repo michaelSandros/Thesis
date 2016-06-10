@@ -1,8 +1,10 @@
 from myGraph import *
 from plots import *
-#G,labels, listofNodes = randomGraph()
+from communities import *
+
 G=nx.DiGraph()
 labels = {}
+dens = {}
 for e in range(0,6):
     G.add_node(e)
     labels[e] = e
@@ -17,7 +19,12 @@ G.add_edge(1,5)
 G.add_edge(2,5)
 G.add_edge(3,5)
 G.add_edge(4,5)
-outcome = [[0],[1,2],[3,4],[]]
-active,target = Sizes(G,outcome)
-print(active)
-print(target)
+
+comms,values = commNum(G)
+print(comms)
+for e in range(0,len(comms)):
+    H = G.subgraph(comms[e])
+    dens[e] = nx.density(H)
+print(dens)
+dens1 = communityDensity(G,comms)
+print(dens1)
