@@ -21,10 +21,11 @@ G.add_edge(3,5)
 G.add_edge(4,5)
 
 comms,values = commNum(G)
+comms = [[0,1,2,3,4,5]]
+print("before")
 print(comms)
-for e in range(0,len(comms)):
-    H = G.subgraph(comms[e])
-    dens[e] = nx.density(H)
-print(dens)
-dens1 = communityDensity(G,comms)
-print(dens1)
+lala = perComm(G,comms,0,G,1)
+lala1 = initialNodes(G,comms,1)
+print("after")
+print(lala)
+print(lala1)

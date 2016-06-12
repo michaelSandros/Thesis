@@ -110,6 +110,7 @@ def initialNodes(G,comms,flag):
             highest = max(d.values())
             # return a list of nodes that have the max value
             maxList = [k for k,v in d.items() if v == highest]
+            print(maxList)
             # get a random node
             umax = random.choice(maxList)
             Ij[j] = Ij[j] + [umax]
@@ -118,7 +119,6 @@ def initialNodes(G,comms,flag):
             umaxTempList = []
             I = I + [umax]
             d = {}
-        print(comms1)
         return I
     else:
         print ("ERROR: K must be lower or equal to the number of nodes")
@@ -154,6 +154,7 @@ def perComm(G, comms, e, wholeGraph,flag):
             highest = max(d.values())
             # return a list of nodes that have the max value
             maxList = [k for k,v in d.items() if v == highest]
+            print(maxList)
             # get a random node
             umax = random.choice(maxList)
             Ij = Ij + [umax]
