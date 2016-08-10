@@ -3,6 +3,7 @@ import community
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
+from fileCopy import *
 from linear_threshold import *
 from datetime import datetime
 from random import *
@@ -11,9 +12,9 @@ import sys
 
 # random graph creation
 def randomGraph():
-        # lower and Upper bounds for random number of nodes
-        lower = 60
-        upper = 60
+        # lower and upper bounds for random number of nodes
+        lower = 6
+        upper = 6
         listofNodes = []
         random.seed(datetime.now())
         # lower <= Upper bound
@@ -40,8 +41,7 @@ def randomGraph():
                         if n != k and v >= 5:
                                 G.add_edge(n,k)
                         else:
-                                continue
-        
+                                continue 
         return (G,labels,listofNodes)
 
 # custom graph creation
@@ -95,15 +95,19 @@ def customGraph():
 
 # graph from real Twitter data
 def realGraph():
-        
+    # copies certain lines of the dataset
+    fileCopy()
+    # from the edges we get the nodes of the graph
+    edges2Nodes()
+    
     listofNodes = []
     G = nx.DiGraph()
     labels = {}
 
     # open f2 for reading
-    f2 = open('newFile.txt', 'r')
+    f2 = open('txtfiles/newFile.txt', 'r')
     # each line (a node number) of the newFile is extended to a list
-    listofEdges = [line.rstrip() for line in open('newFile.txt')]
+    listofEdges = [line.rstrip() for line in open('txtfiles/newFile.txt')]
     f2.close()
 
     # list of chars -> list of integers
@@ -132,20 +136,23 @@ def realGraph():
     return G,labels,listofNodes
 
 def edges2Nodes():
-    
-    f1 = open('nodesFile.txt', 'r')
-    f2 = open('newFile.txt', 'w')
+    # open f1 for reading
+    f1 = open('txtfiles/nodesFile.txt', 'r')
+    # open f2 for writing
+    f2 = open('txtfiles/newFile.txt', 'w')
     # change space with newline
     for line in f1:
         f2.write(line.replace(' ', '\n'))
     f2.close()
     f1.close()
 
-
+# checks if the new sum is <= 1 and then adds the new influence
 def checkInfluence(G,destination,influence):
     nodeSum = 0
     for e in G.edges():
+            # influence for all edges ending to the pecific destination
             if (e[1] == destination):
+                    # loop
                     while True:
                             i = random.uniform(0,1)/G.in_degree(e[1])
                             if(nodeSum + i <= 1):
@@ -153,7 +160,7 @@ def checkInfluence(G,destination,influence):
                                     nodeSum = nodeSum + i
                                     break
     return nodeSum
-    
+# add activation probabilities     
 def addProbs(G):
       for e in G.edges():
            if ('influence' in G[e[0]][e[1]]):
@@ -209,7 +216,7 @@ def betweenCentralityThres(G):
                         if(G.node[x]['threshold'] > 1):
                              G.node[x]['threshold'] = 1.0
                         
-# mixed Centrality Threshold
+# mixed centrality threshold
 def mixedThres(G):
         bc = nx.betweenness_centrality(G)
         dc = nx.degree_centrality(G)
@@ -220,7 +227,7 @@ def mixedThres(G):
                              G.node[x]['threshold'] = 1.0
                              
         
-# communities Drawing
+# communities drawing
 def commDraw(G,values):
         plt.axis('off')
         nx.draw_spring(G, cmap = plt.get_cmap('jet'), node_color = values, with_labels=False)
@@ -234,7 +241,7 @@ def drawstepbystep(G,outcome,labels):
         for e in range(1,len(outcome)):
                 # all inactive are with red colors
                 nx.draw_networkx_nodes(G,pos)
-                # all seed nodes are with green color
+                # all seed nodes are with yellow color
                 nx.draw_networkx_nodes(G,pos,nodelist=outcome[0],node_color='yellow')
                 # nodes to be activated in the next step with blue colors
                 nx.draw_networkx_nodes(G,pos,nodelist=outcome[e],node_color='blue')
@@ -262,6 +269,10 @@ def label2number(comms,labels):
 
 # prints the number of the seed nodes
 def seedNum(seeds,labels):
+    if(len(seeds) == 1):
+        print("The following node is the seed of the diffusion:")
+    else:
+        print("The following nodes are the seeds of the diffusion:")
     for x in range(0,len(seeds)):
         print(labels.get(seeds[x]))
 
@@ -270,13 +281,17 @@ def seedNum(seeds,labels):
 def diffNumbers(outcome,labels):
         for x in range(1,len(outcome)):
                 if(len(outcome[x]) > 0):
-                        print("Nodes activated in the step %d" %x)
+                        if(len(outcome[x]) == 1):
+                                print("The following node is activated in the step %d:" %x)
+                        else:
+                                print("The following nodes are activated in the step %d:" %x)
                         for i in range(0,len(outcome[x])):
                                 print(labels.get(outcome[x][i]))
-                        print()
                 else:
-                        print("All other nodes stayed inactive")
-def Sizes(G,outcome):
+                        print("In the step %d no further activations were possible." %x)
+                        print("Diffusion terminated")
+                        
+def diffusionSizes(G,outcome):
         # set activated flag for all nodes to False
         nx.set_node_attributes(G, 'activated', False)
         counter = 0
@@ -291,8 +306,7 @@ def Sizes(G,outcome):
         for x in range(0,len(outcome) - 1):
                 for e in range(0,len(outcome[x])):
                        counter = counter + 1;
-                activeNodes[x + 1] = [counter]
-                
+                activeNodes[x + 1] = [counter]			   
         # find the target set of nodes in each step of the diffusion        
         for x in range(0,len(outcome) - 1):
                 nx.set_node_attributes(G, 'counted', False)
@@ -312,7 +326,7 @@ def Sizes(G,outcome):
                                         if(G.node[e[1]]['activated'] == False):
                                                 # if the node does not already counted
                                                 if(G.node[e[1]]['counted'] == False):
-                                                        #increment counter
+                                                        # increment counter
                                                         counter = counter + 1
                                                         G.node[e[1]]['counted'] = True
                 targetNodes[x + 1] = [counter]

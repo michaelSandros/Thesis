@@ -55,6 +55,7 @@ def initialNodes(G,comms,flag):
     K = 2
     # number of nodes
     N = nx.number_of_nodes(G)
+    # duplicate community lists
     comms1 = duplicateComms(comms)
     if N >= K :
         # 2-d (M+1)x(K+1) arrays
@@ -78,12 +79,12 @@ def initialNodes(G,comms,flag):
                     diff = VaU/N - Va/N
                     DRmList.extend([diff])
                     tempList = []
-                # if empty list go to the next community
+                # if the list is empty => go to the next community
                 if not DRmList:
                     continue
                 else:
                     DRm = max(DRmList)
-                R[m][k] = max(R[m-1][k],(R[M][k-1]+DRm))
+                R[m][k] = max(R[m-1][k],(R[M][k-1] + DRm))
                 if (R[m-1][k] >= R[M][k-1] + DRm):
                     s[m][k] = s[m-1][k]
                 else:
@@ -92,8 +93,7 @@ def initialNodes(G,comms,flag):
             # community numbering begins from 0
             j = s[M][k] - 1
             d = {}
-
-            # find the most influential node in the j-th community
+            # finds the most influential node in the j-th community
             for l in range(0,len(comms1[j])):
                 umaxTempList = Ij[j] + [comms1[j][l]]
                 if flag == 1:
@@ -108,9 +108,8 @@ def initialNodes(G,comms,flag):
                 d[comms1[j][l]] = jDiff
             # returns the max value of the dictionary
             highest = max(d.values())
-            # return a list of nodes that have the max value
+            # returns a list of nodes that have the max value
             maxList = [k for k,v in d.items() if v == highest]
-            print(maxList)
             # get a random node
             umax = random.choice(maxList)
             Ij[j] = Ij[j] + [umax]
@@ -125,6 +124,7 @@ def initialNodes(G,comms,flag):
         sys.exit()
             
 def perComm(G, comms, e, wholeGraph,flag):
+    # lists
     interComms = []
     interComms.extend(comms[e])
     Ij = []
@@ -152,9 +152,8 @@ def perComm(G, comms, e, wholeGraph,flag):
                 d[interComms[x]] = unionTotal/NoN - total/NoN
             # returns the max value of the dictionary
             highest = max(d.values())
-            # return a list of nodes that have the max value
+            # returns a list of nodes that have the max value
             maxList = [k for k,v in d.items() if v == highest]
-            print(maxList)
             # get a random node
             umax = random.choice(maxList)
             Ij = Ij + [umax]
@@ -162,16 +161,21 @@ def perComm(G, comms, e, wholeGraph,flag):
             interComms.remove(umax)
     return Ij
 
+# duplicate communities
 def duplicateComms(comms):
     M = len(comms)
+    # empty M list of sublists 
     comms1 = [list([]) for _ in range(M)]
+    # extend each sublist in the comms1 list
     for x in range(0,len(comms)):
+        # extend each element of the comms list to the new list
         for e in range(0,len(comms[x])):
             comms1[x].extend([comms[x][e]])
     return comms1
 
 # borda counting
 def Borda(G,comms,x):
+    # initial dictionaries
     ddc = {}
     dcc = {}
     dbc = {}
@@ -186,6 +190,7 @@ def Borda(G,comms,x):
         ddc[comms[x][l]] = degreeC[comms[x][l]]
         dcc[comms[x][l]] = closenessC[comms[x][l]]
         dbc[comms[x][l]] = betweennessC[comms[x][l]]
+        
     # get values
     ddc_values = list(ddc.values())
     dcc_values = list(dcc.values())
@@ -198,19 +203,19 @@ def Borda(G,comms,x):
     for k in range(0,len(sorted_ddc)):
         key = list(ddc.keys())[list(ddc.values()).index(sorted_ddc[k])]
         ddcList.extend([key])
-        # delete keys to prevent the appereance of the same node multiple times
+        # deletes keys to prevent the appereance of the same node multiple times
         del ddc[key]
 
     for k in range(0,len(sorted_dcc)):
         key = list(dcc.keys())[list(dcc.values()).index(sorted_dcc[k])]
         dccList.extend([key])
-        # delete keys to prevent the appereance of the same node multiple times
+        # deletes keys to prevent the appereance of the same node multiple times
         del dcc[key]
 
     for k in range(0,len(sorted_dbc)):
         key = list(dbc.keys())[list(dbc.values()).index(sorted_dbc[k])]
         dbcList.extend([key])
-        # delete keys to prevent the appereance of the same node multiple times
+        # deletes keys to prevent the appereance of the same node multiple times
         del dbc[key]
         
     votes = len(comms[x]) - 1
@@ -218,7 +223,8 @@ def Borda(G,comms,x):
     dc = {}
     bc = {}
     cc = {}
-    
+
+    # votes acoring to position of each node
     for k in range(0,len(ddcList)):
         totalVotes = votes - k
         dc[ddcList[k]] = totalVotes
@@ -245,7 +251,6 @@ def Borda(G,comms,x):
         finalList.extend([key])
         # delete keys to prevent the appereance of 2 or more same nodes
         del total[key]
-
     return finalList
 
 def communityDensity(G,comms):
@@ -270,5 +275,4 @@ def communityDensity(G,comms):
     for e in range(0,len(densSorted)):
         x = densSorted[e]
         finalList.extend([x])
-    
     return finalList

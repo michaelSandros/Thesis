@@ -8,7 +8,6 @@ from independent_cascade import *
 import matplotlib.pyplot as plt
 from plots import *
 
-
 while True:
     print("Press 1 to generate random graph.")
     print("Press 2 to load a Graph from a file.")
@@ -38,7 +37,6 @@ while True:
                 flag = 2
                 break
             elif(ch == 0):
-
                 break
             else:
                 print("Wrong option.\nPlease try again.\n")
