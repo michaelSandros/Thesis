@@ -224,7 +224,7 @@ def Borda(G,comms,x):
     bc = {}
     cc = {}
 
-    # votes acoring to position of each node
+    # votes acording to position of each node
     for k in range(0,len(ddcList)):
         totalVotes = votes - k
         dc[ddcList[k]] = totalVotes
@@ -243,7 +243,7 @@ def Borda(G,comms,x):
     for key in dc:
         total[key] = dc[key] + bc[key] + cc[key]
         
-    # retun all nodes in desceding 
+    # retun all nodes in desceding order
     total_values = list(total.values())
     sorted_total = sorted(total_values, reverse = True)
     for k in range(0,len(sorted_total)):
