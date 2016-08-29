@@ -2,11 +2,13 @@ import community
 import random
 import sys
 import operator
+from math import *
 from myGraph import *
 from calculateNodes import *
 from linear_threshold import *
 from independent_cascade import *
 import networkx as nx
+import math as math
 
 # each community has the label of the nodes they belong
 def commNum(G):
@@ -253,26 +255,66 @@ def Borda(G,comms,x):
         del total[key]
     return finalList
 
+# returns the communities with the biggest density
 def communityDensity(G,comms):
     dens = {}
     dens1 = {}
-    densSorted = []
     finalList = []
-    final_dict = {}
+    # find the density of each community
+    # H is a subgraph consisting only by the nodes and the edges of each community
     for e in range(0,len(comms)):
         H = G.subgraph(comms[e])
         dens[e] = nx.density(H)
         dens1[e] = nx.density(H)
+    print(dens)
     # get values
     dens_values = list(dens.values())
+    # sorted by descending order
     sorted_dens = sorted(dens_values, reverse = True)
+    # community keys by descending density 
     for k in range(0,len(sorted_dens)):
+        # get the key of the maximum density in each step
         key = list(dens.keys())[list(dens.values()).index(sorted_dens[k])]
-        densSorted.extend([key])
-        # delete keys to prevent the appereance of the same node multiple times
+        finalList.extend([key])
+        # delete keys to prevent the appereance of the same community multiple times
         del dens[key]
-        
-    for e in range(0,len(densSorted)):
-        x = densSorted[e]
-        finalList.extend([x])
-    return finalList
+    return (finalList,dens1)
+
+def initialNodesMapping(N,topComms,comms,dens1):
+    # number of the communities
+    c = len(comms)
+    lamda = 1
+    # initial nodes per community
+    initial = {}
+    weights = []
+    K = ceil(0.10*N)
+    # initialization with 0 
+    for x in range(0,len(topComms)):
+        initial[topComms[x]] = 0
+    # initialaztion of the weights: wk = (lamda^k/k!)*e^(-lamda)
+    for k in range(0,len(topComms)):
+        weight = (math.pow(lamda,k)/factorial(k))*math.exp(-lamda)
+        weights.extend([weight])
+    # while there are initial nodes
+    while K > 0:
+        # according to community density
+        for x in range(0,len(topComms)):
+            # total initial nodes per community
+            k = math.ceil((K/c)*weights[x])
+            initial[topComms[x]] = initial[topComms[x]] + k
+            K = K - k
+    return initial        
+
+# BETA
+def sameComm(start,end,comms):
+    # find the community in which start node is
+    for e in comms:
+        if (start in e):
+            break
+    # if the end node is in the community
+    # return true
+    if (end in e):
+        return True
+    # else return False
+    else:
+        return False

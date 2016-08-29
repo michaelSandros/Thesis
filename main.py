@@ -15,15 +15,14 @@ while True:
     num = int(input("Please enter an option.\n"))
     if num == 1 or num == 2:
         if num ==  1:
-            G,labels, listofNodes = randomGraph()
-            comms,values = commNum(G)
-            #speed = diffSpeed(G)
+            while True:
+                Number_of_nodes = num = int(input("Please enter the number of the nodes of the random graph.\n"))
+                if (Number_of_nodes > 0):
+                    break
+            G,labels,listofNodes,totalInfluence = randomGraph(Number_of_nodes)
         else:
-            fileCopy()
-            edges2Nodes()
-            G,labels, listofNodes = realGraph()
-            comms,values = commNum(G)
-            #speed = diffSpeed(G) 
+            G,labels, listofNodes,totalInfluence = realGraph()
+        comms,values = commNum(G)
         while True:
             print("Press 1 for Linear Threshold Model.")
             print("Press 2 for Independent Cascade Model.")
@@ -43,6 +42,7 @@ while True:
                 continue
         while True:
             if (ch == 1 or ch == 2):
+                '''
                 iterations = int(input("Please enter the number of iterations.\n"))
                 active1 = [[0] for x in range(0,iterations)]
                 active2 = [[0] for x in range(0,iterations)]
@@ -50,6 +50,7 @@ while True:
                 active4 = [[0] for x in range(0,iterations)]
                 active5 = [[0] for x in range(0,iterations)]
                 xx =      [[0] for x in range(0,iterations)]
+                '''
                 print("Press 1 to implement the diffusion model in the whole graph.")
                 print("Press 2 to implement the diffusion model in each community and merge results.")
                 print("Press 3 to implement the diffusion model according to the community density.")
@@ -60,17 +61,10 @@ while True:
                 elif (ch2 == 2):
                     print("in each community")
                 elif (ch2 == 3):
-                    dens = {}
-                    # find the density of each community
-                    # H is a subgraph consisting only by the nodes and the edges of each community
-                    for e in range(0,len(comms)):
-                        H = G.subgraph(comms[e])
-                        dens[e] = nx.density(H)
-                    print(dens)
-                    lala = communityDensity(G,comms)
-                    
-                    for e in range(0,len(lala)):
-                        print(dens[lala[e]])
+                    topComms,dens1 = communityDensity(G,comms)
+                    print(topComms)
+                    N = G.number_of_nodes()
+                    finalList = initialNodesMapping(N,topComms,comms,dens1)
                     while True:
                         print("Press 1 to rank nodes according to centralities.")
                         print("Press 2 to rank nodes according to borda count.")
