@@ -174,87 +174,7 @@ def duplicateComms(comms):
         for e in range(0,len(comms[x])):
             comms1[x].extend([comms[x][e]])
     return comms1
-
-# borda counting
-def Borda(G,comms,x):
-    # initial dictionaries
-    ddc = {}
-    dcc = {}
-    dbc = {}
-    ddcList = []
-    dccList = []
-    dbcList = []
-    H = G.subgraph(comms[x])
-    degreeC = nx.degree_centrality(H)
-    closenessC = nx.closeness_centrality(H)
-    betweennessC = nx.betweenness_centrality(H)
-    for l in range(0,len(comms[x])):
-        ddc[comms[x][l]] = degreeC[comms[x][l]]
-        dcc[comms[x][l]] = closenessC[comms[x][l]]
-        dbc[comms[x][l]] = betweennessC[comms[x][l]]
-        
-    # get values
-    ddc_values = list(ddc.values())
-    dcc_values = list(dcc.values())
-    dbc_values = list(dbc.values())
-    
-    # descending order
-    sorted_ddc = sorted(ddc_values, reverse = True)
-    sorted_dcc = sorted(dcc_values, reverse = True)
-    sorted_dbc = sorted(dbc_values, reverse = True)
-    for k in range(0,len(sorted_ddc)):
-        key = list(ddc.keys())[list(ddc.values()).index(sorted_ddc[k])]
-        ddcList.extend([key])
-        # deletes keys to prevent the appereance of the same node multiple times
-        del ddc[key]
-
-    for k in range(0,len(sorted_dcc)):
-        key = list(dcc.keys())[list(dcc.values()).index(sorted_dcc[k])]
-        dccList.extend([key])
-        # deletes keys to prevent the appereance of the same node multiple times
-        del dcc[key]
-
-    for k in range(0,len(sorted_dbc)):
-        key = list(dbc.keys())[list(dbc.values()).index(sorted_dbc[k])]
-        dbcList.extend([key])
-        # deletes keys to prevent the appereance of the same node multiple times
-        del dbc[key]
-        
-    votes = len(comms[x]) - 1
-
-    dc = {}
-    bc = {}
-    cc = {}
-
-    # votes acording to position of each node
-    for k in range(0,len(ddcList)):
-        totalVotes = votes - k
-        dc[ddcList[k]] = totalVotes
-
-    for k in range(0,len(dbcList)):
-        totalVotes = votes - k
-        bc[dbcList[k]] = totalVotes
-
-    for k in range(0,len(dccList)):
-        totalVotes = votes - k
-        cc[dccList[k]] = totalVotes
-
-    finalList = []
-    total = {}
-    # total votes
-    for key in dc:
-        total[key] = dc[key] + bc[key] + cc[key]
-        
-    # retun all nodes in desceding order
-    total_values = list(total.values())
-    sorted_total = sorted(total_values, reverse = True)
-    for k in range(0,len(sorted_total)):
-        key = list(total.keys())[list(total.values()).index(sorted_total[k])]
-        finalList.extend([key])
-        # delete keys to prevent the appereance of 2 or more same nodes
-        del total[key]
-    return finalList
-
+	
 # returns the communities with the biggest density
 def communityDensity(G,comms):
     dens = {}
@@ -280,7 +200,7 @@ def communityDensity(G,comms):
         del dens[key]
     return (finalList,dens1)
 
-def initialNodesMapping(N,topComms,comms,dens1):
+def initialNodesMapping(N,topComms,comms):
     # number of the communities
     c = len(comms)
     lamda = 1
@@ -288,6 +208,8 @@ def initialNodesMapping(N,topComms,comms,dens1):
     initial = {}
     weights = []
     K = ceil(0.10*N)
+    K = ceil(0.1*N)
+    print(K)
     # initialization with 0 
     for x in range(0,len(topComms)):
         initial[topComms[x]] = 0
@@ -301,8 +223,14 @@ def initialNodesMapping(N,topComms,comms,dens1):
         for x in range(0,len(topComms)):
             # total initial nodes per community
             k = math.ceil((K/c)*weights[x])
+            # increment initial nodes per community
             initial[topComms[x]] = initial[topComms[x]] + k
+            # initial nodes decrement
             K = K - k
+    summe = 0
+    for x in range(0,len(initial)):
+        summe = summe + initial[x]
+    print(summe)
     return initial        
 
 # BETA

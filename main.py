@@ -64,7 +64,7 @@ while True:
                     topComms,dens1 = communityDensity(G,comms)
                     print(topComms)
                     N = G.number_of_nodes()
-                    finalList = initialNodesMapping(N,topComms,comms,dens1)
+                    finalList = initialNodesMapping(N,topComms,comms)
                     while True:
                         print("Press 1 to rank nodes according to centralities.")
                         print("Press 2 to rank nodes according to borda count.")

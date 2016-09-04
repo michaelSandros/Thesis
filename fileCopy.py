@@ -6,7 +6,7 @@ def fileCopy():
         # counter
         counter = 0
         # maximum lines of f1
-        maximum = 2500
+        maximum = 25000
         # for each line in f1
         for line in f1:
                 # final line of f1

@@ -10,6 +10,7 @@ from communities import *
 from random import *
 import random
 import sys
+import os.path
 
 # random graph creation
 def randomGraph(n):
@@ -38,10 +39,11 @@ def randomGraph(n):
         return (G,labels,listofNodes,totalInfluence)
 
 # graph from real Twitter data
-def realGraph():
+def realGraph(path):
     listofNodes = []
     # directed graph
     G = nx.DiGraph()
+    edges2Nodes(path)
     # empty dictionary of node labels
     labels = {}
     # open f2 for reading
@@ -49,6 +51,8 @@ def realGraph():
     # each line (a node number) of the newFile is extended to a list
     listofEdges = [line.rstrip() for line in open('txtfiles/newFile.txt')]
     f2.close()
+    # removes the file
+    os.remove('txtfiles/newFile.txt')
     # list of chars -> list of integers
     listofEdges = list(map(int, listofEdges))
     # get distinct number of nodes
@@ -70,9 +74,9 @@ def realGraph():
     totalInfluence =  [[0] for x in range(len(listofNodes))]
     return (G,labels,listofNodes,totalInfluence)
 
-def edges2Nodes():
+def edges2Nodes(path):
     # open f1 for reading
-    f1 = open('txtfiles/nodesFile.txt', 'r')
+    f1 = open(path, 'r')
     # open f2 for writing
     f2 = open('txtfiles/newFile.txt', 'w')
     # change space with newline
@@ -266,3 +270,82 @@ def diffusionSizes(G,outcome,comms):
                                                                 G.node[e[1]]['counted'] = True
                 targetNodes[x + 1] = [counter]
         return activeNodes,targetNodes
+
+def Borda(G):
+        # total number of nodes
+        nodes = G.number_of_nodes()
+        # dictionary with degree centrality for each node
+        ddc = {}
+        # dictionary with closeness centrality for each node
+        dcc = {}
+        # dictionary with betweenness centrality for each node
+        dbc = {}
+        ddcList = []
+        dccList = []
+        dbcList = []
+        # dictionaries with votes
+        dc = {}
+        bc = {}
+        cc = {}
+        total = {}
+        finalList = []
+        sorted_total = []
+        # list of top nodes
+        finalList = []
+        # degree centraliy, closeness centrality and betweenness centrality for each node
+        degreeC = nx.degree_centrality(G)
+        closenessC = nx.closeness_centrality(G)
+        betweennessC = nx.betweenness_centrality(G)
+        for x in range(0,G.number_of_nodes()):
+                ddc[x] = degreeC[x]
+                dcc[x] = closenessC[x]
+                dbc[x] = betweennessC[x]
+        # get values
+        ddc_values = list(ddc.values())
+        dcc_values = list(dcc.values())
+        dbc_values = list(dbc.values()) 
+        # descending order degree centraliy, closeness centrality and betweenness centrality
+        sorted_ddc = sorted(ddc_values, reverse = True)
+        sorted_dcc = sorted(dcc_values, reverse = True)
+        sorted_dbc = sorted(dbc_values, reverse = True)
+        for k in range(0,len(sorted_ddc)):
+                # get the key with the the sorted value
+                key = list(ddc.keys())[list(ddc.values()).index(sorted_ddc[k])]
+                ddcList.extend([key])
+                # deletes keys to prevent the appereance of the same node multiple times
+                # that happens if there are nodes with the same degree centrality
+                del ddc[key]
+        for k in range(0,len(sorted_dcc)):
+                key = list(dcc.keys())[list(dcc.values()).index(sorted_dcc[k])]
+                dccList.extend([key])
+                # deletes keys to prevent the appereance of the same node multiple times
+                # that happens if there are nodes with the same closeness centrality
+                del dcc[key]
+        for k in range(0,len(sorted_dbc)):
+                key = list(dbc.keys())[list(dbc.values()).index(sorted_dbc[k])]
+                dbcList.extend([key])
+                # deletes keys to prevent the appereance of the same node multiple times
+                # that happens if there are nodes with the same betweenness centrality
+                del dbc[key]
+        # votes for the top node of each centrality
+        votes = nodes - 1
+        # votes acording to position of each node
+        for k in range(0,len(ddcList)):
+                totalVotes = votes - k
+                dc[ddcList[k]] = totalVotes
+        for k in range(0,len(dbcList)):
+                totalVotes = votes - k
+                bc[dbcList[k]] = totalVotes
+        for k in range(0,len(dccList)):
+                totalVotes = votes - k
+                cc[dccList[k]] = totalVotes
+        for key in dc:
+                total[key] = dc[key] + bc[key] + cc[key]
+        total_values = list(total.values())
+        sorted_total = sorted(total_values, reverse = True)
+        for k in range(0,len(sorted_total)):
+                key = list(total.keys())[list(total.values()).index(sorted_total[k])]
+                finalList.extend([key])
+                # delete keys to prevent the appereance of 2 or more same nodes
+                del total[key]
+        return finalList
