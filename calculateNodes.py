@@ -2,26 +2,15 @@ import networkx as nx
 
 # returns the total activated nodes of the diffusion and the steps
 # in the whole graph
-def calculateNodes(p,G):
-	# total nodes of the graph
-    totalNodes = G.number_of_nodes()
-	# total steps
-    steps = len(p) - 1
-    # all nodes were the seeders of the diffusion
-    if(len(p[0]) == totalNodes):
-       totalActivated = totalNodes
-    # if in the first step noone node is activated
-    elif (len(p[1]) == 0):
-        totalActivated = len(p[0])
-    # else find how many nodes activated
-    else:
-        totalActivated = len(p[0])
-        # for every step find the activated nodes
-        # for every sublist
-        for e in range  (1,len(p)):
-            for k in range (0,len(p[e])):
-                totalActivated = totalActivated + 1
-    return totalActivated
+def calculateNodes(G,outcome):
+    stepbystep = []
+    step = []
+    totalSum = 0
+    for x in range(0,len(outcome)):
+        totalSum = totalSum + len(outcome[x])
+        stepbystep.extend([totalSum])
+        step.extend([x])
+    return stepbystep,step
 
 # returns the total activated nodes of the diffusion
 # in a single community

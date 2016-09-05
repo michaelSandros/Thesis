@@ -104,8 +104,6 @@ def checkInfluence(G,destination,influence):
 # add activation probabilities     
 def addProbs(G):
       for e in G.edges():
-           if ('influence' in G[e[0]][e[1]]):
-                   del(G[e[0]][e[1]]['influence'])
            random.seed(datetime.now())
            i = random.uniform(0,1)
            G[e[0]][e[1]]['act_prob'] = i

@@ -32,3 +32,8 @@ def timePlot(time1,x):
     frame = legend.get_frame()
     frame.set_facecolor('0.90')
     plt.show()
+
+def stepbystep(active,steps):
+    plt.axis([0, len(steps) + 1, min(active) - 1, max(active) + 1])
+    plt.plot(steps, active, ls = "-", label="Random Threshold")
+    plt.show()
