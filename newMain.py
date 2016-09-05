@@ -53,9 +53,15 @@ while True:
             option2 = int(input("Please, choose the diffusion model:\n"))
             if(option2 == 1):
                 diffFlag = 1
+                # total inluence for all nodes with incoming edges
+                for n in range(0,len(listofNodes)):
+                    end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
+                    totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
                 break
             elif(option2 == 2):
                 diffFlag = 2
+                # add activation proballities for every edge
+                addProbs(G)
                 break
             else:
                 print("Invalid option, please try again.\n")
