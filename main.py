@@ -8,7 +8,6 @@ from os import listdir
 from math import *
 from plots import *
 
-
 while True:
     print("Press 1 to create a random graph.")
     print("Press 2 to load a file.")
@@ -23,6 +22,7 @@ while True:
         print("Wrong option.\n")
 
 if(option1 == 1 or option1 == 2):
+    nodesLabel = []
     if(option1 == 1):
         while True:
             Number_of_nodes = int(input("Please, enter the number of the graph nodes:\n"))
@@ -52,6 +52,8 @@ if(option1 == 1 or option1 == 2):
             # if yes
             if(os.path.isfile(fname)):
                 G,labels,listofNodes,totalInfluence = realGraph(fname)
+                print(labels)
+                print(G.number_of_nodes())
                 randomThres(G)
                 # total inluence for all nodes with incoming edges
                 for n in range(0,len(listofNodes)):
@@ -81,17 +83,22 @@ if(option1 == 1 or option1 == 2):
             option3 = int(input("Please, choose an option:\n"))
             if(option3 == 1):
                 rankFlag = 1
+                wholeFlag = 1
                 break
             elif(option3 == 2):
                 while True:
+                    wholeFlag = 0
                     print("Do you want to find the most influential nodes according to the Community Greedy Algorithm?")
                     print("Press 1 for yes.")
                     print("Press 2 for no.")
                     option4 = int(input("Please, choose an option:\n"))
                     if(option4 == 1):
                         rankFlag = 0
+                        randomFlag = 2
+                        CGAflag = 1
                     elif(option4 == 2):
                         rankFlag = 1
+                        CGAflag = 0
                     else:
                         print("Invalid option, please try again.\n")
                         continue
@@ -101,7 +108,7 @@ if(option1 == 1 or option1 == 2):
                 print("Invalid option, please try again.\n")
                 continue
         while True:
-            option5 = int(input("Τype the percentage of nodes that are the seed nodes of the diffusion. (range: [1-100])\n"))
+            option5 = int(input("Τype the percentage of nodes that are the seed nodes of the diffusion.\nInput must be in the range: [1, 100]\n"))
             if(option5 > 0 and option5 <= 100):
                 nodes = G.number_of_nodes()
                 totalSeeds = ceil((option5/100)*nodes)
@@ -119,26 +126,40 @@ if(option1 == 1 or option1 == 2):
                            continue
                        break
                     break
+                if(CGAflag == 1):
+                    break
             else:
                 print("The percentage must be bigger than 0 and lower or equal to 100.\n")
                 continue
         while True:
             if(randomFlag == 1):
+                # get the label of nodes and extend them in a list
+                for i in range(0,len(labels)):
+                    nodesLabel.extend([i])
                 combinations = factorial(nodes)/(factorial(nodes - totalSeeds)*factorial(totalSeeds))
-                print(combinations)
                 option7 = int(input("Enter the number of simulations.\n (range [1 %d])\n"%combinations))
                 if (option7 > 0 and option7 <= combinations):
-                    print(option7)
+                    if(wholeFlag == 1):
+                        colorCounter = 0
+                        for i in range(0,option7):
+                            randomSeeds = random.sample(set(nodesLabel), totalSeeds)
+                            diffusion(G,randomSeeds,diffFlag,i)
+                        plt.show()
+                    else:
+                            print("Per comm")
                 else:
                     print("The number of summulations must be at least 1.\n")
-            else:
-                topNodes = Borda(G)
-                seedNodes = topNodes[0:totalSeeds]
-                if(diffFlag == 1):
-                    diffusion = linear_threshold(G,seedNodes,-4)
+            elif(randomFlag == 0):
+                if(wholeFlag == 1):
+                    # if topNodes are already initialized
+                    # (avoid multiple long running calculations Borda Calculation for the same graph)
+                    try:
+                      topNodes
+                    except NameError:
+                      topNodes = Borda(G)
+                    wholeDeffusion(G,totalSeeds,topNodes,diffFlag)
                 else:
-                    diffusion = independent_cascade(G,seedNodes,-4)
-                activatedNodes, step= calculateNodes(G,diffusion)
-                print(diffusion)
-                stepbystep(activatedNodes,step)
+                    print("Per comm")
+            else:
+                print("CGA")
             break

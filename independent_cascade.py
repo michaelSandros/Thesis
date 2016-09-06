@@ -73,6 +73,7 @@ def independent_cascade(G, seeds, steps=0):
   for e in DG.edges():
     if 'act_prob' not in DG[e[0]][e[1]]:
       DG[e[0]][e[1]]['act_prob'] = 0.1
+      print("PROBLEM")
     elif DG[e[0]][e[1]]['act_prob'] > 1:
       raise Exception("edge activation probability:", \
           DG[e[0]][e[1]]['act_prob'], "cannot be larger than 1")

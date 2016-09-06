@@ -5,12 +5,14 @@ import networkx as nx
 import random
 from fileCopy import *
 from linear_threshold import *
+from independent_cascade import *
 from datetime import datetime
 from communities import *
 from random import *
 import random
 import sys
 import os.path
+from plots import *
 
 # random graph creation
 def randomGraph(n):
@@ -347,3 +349,52 @@ def Borda(G):
                 # delete keys to prevent the appereance of 2 or more same nodes
                 del total[key]
         return finalList
+
+def wholeDeffusion(G,totalSeeds,topNodes,diffFlag):
+        # top totalSeeds nodes according to Borda
+        seedNodes = topNodes[0:totalSeeds]
+        if(len(seedNodes) == 1):
+                label = "Seed Node: "
+        else:
+                label = "Seed Nodes: "
+        for x in range(0,len(seedNodes)):
+                label = label + str(seedNodes[x]) + " "
+        # linear threshold model
+        if(diffFlag == 1):
+                diffusion = linear_threshold(G,seedNodes,-4)
+                title = "Linear Threshold Model"
+        # intependent cascade model
+        else:
+                diffusion = independent_cascade(G,seedNodes,-4)
+                title = "Independent Cascade Model"
+        print(diffusion)
+        # sum of activated nodes per step
+        activatedNodes, step = calculateNodes(G,diffusion)
+        # total number of graph nodes
+        myInt = (G.number_of_nodes())
+        # percentage of activated nodes to total nodes
+        newList = [(x / myInt)*100 for x in activatedNodes]
+        stepbystep(newList,step,title,label)
+
+def diffusion(G,seeds,diffFlag,i):
+        if(len(seeds) == 1):
+                label = "Seed Node: "
+        else:
+                label = "Seed Nodes: "
+        for x in range(0,len(seeds)):
+                label = label + str(seeds[x]) + " "
+        if(diffFlag == 1):
+                diffusion = linear_threshold(G,seeds,-4)
+                title = "Linear Threshold Model"
+        # intependent cascade model
+        else:
+                diffusion = independent_cascade(G,seeds,-4)
+                title = "Independent Cascade Model"
+        print(diffusion)
+        # sum of activated nodes per step
+        activatedNodes, steps = calculateNodes(G,diffusion)
+        # total number of graph nodes
+        myInt = (G.number_of_nodes())
+        # percentage of activated nodes to total nodes
+        newList = [(x / myInt)*100 for x in activatedNodes]
+        multiplePlots(newList,steps,i,title,label)
