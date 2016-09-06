@@ -78,7 +78,6 @@ def linear_threshold(G, seeds, steps=0):
   for n in DG.nodes():
     if 'threshold' not in DG.node[n]:
       DG.node[n]['threshold'] = 0.5
-      print("PROBLEM")
     elif DG.node[n]['threshold'] > 1:
       raise Exception("node threshold:", DG.node[n]['threshold'], \
           "cannot be larger than 1")
@@ -88,7 +87,6 @@ def linear_threshold(G, seeds, steps=0):
   for e in DG.edges():
     if 'influence' not in DG[e[0]][e[1]]:
       DG[e[0]][e[1]]['influence'] = 1.0 / in_deg[e[1]]
-      print("PROBLEM")
     elif DG[e[0]][e[1]]['influence'] > 1:
       raise Exception("edge influence:", DG[e[0]][e[1]]['influence'], \
           "cannot be larger than 1")
