@@ -145,7 +145,7 @@ def degreeCentralityThres(G):
         for x  in G.nodes():
                 G.node[x]['threshold'] = dc[x]
                 if(G.node[x]['threshold'] > 1):
-                     G.node[x]['threshold'] = 1.0
+                     G.node[x]['threshold'] = 1
 
 # betweeness Centrality Threshold                    
 def betweenCentralityThres(G):
@@ -153,19 +153,19 @@ def betweenCentralityThres(G):
         for x  in G.nodes():
                 G.node[x]['threshold'] = bc[x]
                 if(G.node[x]['threshold'] > 1):
-                     G.node[x]['threshold'] = 1.0
+                     G.node[x]['threshold'] = 1
                         
 # mixed centrality threshold
 def mixedThres(G):
         bc = nx.betweenness_centrality(G)
         dc = nx.degree_centrality(G)
         for x  in G.nodes():
-             if(bc[x] == 0 and bc[c] == 0):
+             if(bc[x] == 0 and bc[x] == 0):
                  G.node[x]['threshold'] = 0
              else:
                      G.node[x]['threshold'] = (1/2*(bc[x] + dc[x]))/max(bc[x],dc[x])
                      if(G.node[x]['threshold'] > 1):
-                             G.node[x]['threshold'] = 1.0
+                             G.node[x]['threshold'] = 1
                              
         
 # communities drawing
@@ -634,3 +634,112 @@ def perCommRandomLTDiffusion(G,totalSeeds,simulations):
             # plot for every simulation
             multiplePlots(newList,diffSteps,i,title,label)
         plt.show()
+
+def IC_CGA(G,nodesLabel,totalSeeds,diffFlag):
+    # total active nodes per step
+    totalActive = []
+    diffSteps = []
+    # communities of the graph
+    comms, values = commNum(G)
+    # top communities according to the density
+    topComms = communityDensity(G,comms)
+    # initial nodes per community
+    initial = initialNodesMapping(totalSeeds,topComms,comms)
+    print("INITIAL NODES")
+    print(initial)
+    for e in range(0,len(comms)):
+        print("COMMS")
+        print(comms[e])
+        if(initial[e] > len(comms[e])):
+            initial[e] = len(comms[e])
+        print("INITIAL NODES AFTER CHECK")
+        print(initial)
+        subGraph = G.subgraph(comms[e])
+        seeds = perComm(subGraph,comms,e,G,diffFlag,initial[e])
+        print("SEEDS")
+        print(seeds)
+        diffusion = independent_cascade(subGraph,seeds,-4)
+        print(diffusion)
+        activatedNodes, step = calculateWhole(subGraph,diffusion)
+        print(activatedNodes)
+        totalActive = mergeResults(totalActive,activatedNodes)
+        print(totalActive)
+    print("IN THE END")
+    print(totalActive)
+    title = "Independent Cascade Model: CGA Algorithm"
+    color = "r"
+    label = ""
+    myInt = G.number_of_nodes()
+    newList = [(x / myInt)*100 for x in totalActive]
+    # total steps
+    for x in range(0,len(newList)):
+        diffSteps.extend([x])
+    stepbystepPlot(newList,diffSteps,title,label,color)
+    plt.show()
+        
+
+def LT_CGA(G,nodesLabel,totalSeeds,diffFlag):
+    for k in range(0,5):
+        print("KKKKKKKK")
+        print("")
+        print(k)
+        if(k == 0):
+            randomThres(G)
+            label = "Random Threshold"
+            color = "r"
+        elif(k == 1):
+            outDegreeThres(G)
+            label = "OutDegree Threshold"
+            color = "b"
+        elif(k == 2):
+            degreeCentralityThres(G)
+            label = "Degree Centrality Threshold"
+            color = "k"
+        elif(k == 3):
+            betweenCentralityThres(G)
+            label = " Betweenness Centrality"
+            color = "m"
+        else:
+            mixedThres(G)
+            label = "Mixed Centrality Threshold"
+            color = "sienna"
+        # total active nodes per step
+        totalActive = []
+        diffSteps = []
+        # communities of the graph
+        comms, values = commNum(G)
+        # top communities according to the density
+        topComms = communityDensity(G,comms)
+        # initial nodes per community
+        initial = initialNodesMapping(totalSeeds,topComms,comms)
+        print("INITIAL NODES")
+        print(initial)
+        for e in range(0,len(comms)):
+            print("COMMS")
+            print(comms[e])
+            if(initial[e] > len(comms[e])):
+                initial[e] = len(comms[e])
+            print("INITIAL NODES AFTER CHECK")
+            print(initial)
+            subGraph = G.subgraph(comms[e])
+            seeds = perComm(subGraph,comms,e,G,diffFlag,initial[e])
+            print("SEEDS")
+            print(seeds)
+            diffusion = linear_threshold(subGraph,seeds,-4)
+            print(diffusion)
+            activatedNodes, step = calculateWhole(subGraph,diffusion)
+            print(activatedNodes)
+            totalActive = mergeResults(totalActive,activatedNodes)
+            print(totalActive)
+        print("IN THE END")
+        print(totalActive)
+        title = "Linear Threshold  Model: CGA Algorithm per Community"
+        myInt = G.number_of_nodes()
+        newList = [(x / myInt)*100 for x in totalActive]
+        # total steps
+        for x in range(0,len(newList)):
+            diffSteps.extend([x])
+        stepbystepPlot(newList,diffSteps,title,label,color)
+    plt.show()
+
+        

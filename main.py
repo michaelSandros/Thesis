@@ -131,7 +131,10 @@ if(option1 == 1 or option1 == 2):
                 continue
         while True:
             if(randomFlag == 2):
-                print("CGA")
+                if(diffFlag == 2):
+                    IC_CGA(G,nodesLabel,totalSeeds,diffFlag)
+                else:
+                    LT_CGA(G,nodesLabel,totalSeeds,diffFlag)
             elif(randomFlag == 0 or randomFlag == 1):
                 if(randomFlag == 1):
                     # get the label of nodes and extend them in a list

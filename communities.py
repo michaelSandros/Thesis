@@ -105,7 +105,7 @@ def initialNodes(G,comms,flag):
                     jUnion = independent_cascade(G,umaxTempList,steps = -4)
                     jnoUnion = independent_cascade(G,Ij[j],steps= -4)
                 jVaU = communityCalculation(comms,j,jUnion)
-                jVa,steps = calculateNodes(jnoUnion,G)
+                jVa = calculateNodes(jnoUnion,G)
                 jDiff = jVaU/N - jVa/N
                 d[comms1[j][l]] = jDiff
             # returns the max value of the dictionary
@@ -125,13 +125,12 @@ def initialNodes(G,comms,flag):
         print ("ERROR: K must be lower or equal to the number of nodes")
         sys.exit()
             
-def perComm(G,comms,e,wholeGraph,flag):
+def perComm(G,comms,e,wholeGraph,flag,K):
     # lists
     interComms = []
     interComms.extend(comms[e])
     Ij = []
     d = {}
-    K = 2
     NoN = wholeGraph.number_of_nodes()
     N = G.number_of_nodes()
     maxList = []
@@ -150,7 +149,7 @@ def perComm(G,comms,e,wholeGraph,flag):
                     union = independent_cascade(G,temp, steps = -4)
                     noUnion = independent_cascade(G,Ij,steps = -4)
                 unionTotal = communityCalculation(comms,e, union)
-                total, steps = calculateNodes(noUnion,wholeGraph)
+                total = calculateNodes(noUnion,wholeGraph)
                 d[interComms[x]] = unionTotal/NoN - total/NoN
             # returns the max value of the dictionary
             highest = max(d.values())

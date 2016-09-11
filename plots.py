@@ -8,9 +8,10 @@ def stepbystepPlot(active,steps,title,label,color):
     plt.title(title)
     plt.axis([0, len(steps) + 1, 0, 105])
     plt.plot(steps, active, ls = "-",color = color, label = label)
-    legend = plt.legend(loc = 'best', shadow = False)
-    frame = legend.get_frame()
-    frame.set_facecolor('0.90')
+    if(len(label) > 0):
+        legend = plt.legend(loc = 'best', shadow = False)
+        frame = legend.get_frame()
+        frame.set_facecolor('0.90')
 
 def multiplePlots(active,steps,i,title,label):
         if(i == 0):
