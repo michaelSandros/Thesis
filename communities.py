@@ -125,7 +125,7 @@ def initialNodes(G,comms,flag):
         print ("ERROR: K must be lower or equal to the number of nodes")
         sys.exit()
             
-def perComm(G, comms, e, wholeGraph,flag):
+def perComm(G,comms,e,wholeGraph,flag):
     # lists
     interComms = []
     interComms.extend(comms[e])
@@ -186,7 +186,6 @@ def communityDensity(G,comms):
         H = G.subgraph(comms[e])
         dens[e] = nx.density(H)
         dens1[e] = nx.density(H)
-    print(dens)
     # get values
     dens_values = list(dens.values())
     # sorted by descending order
@@ -198,7 +197,7 @@ def communityDensity(G,comms):
         finalList.extend([key])
         # delete keys to prevent the appereance of the same community multiple times
         del dens[key]
-    return (finalList,dens1)
+    return finalList
 
 def initialNodesMapping(N,topComms,comms):
     # number of the communities
@@ -207,9 +206,7 @@ def initialNodesMapping(N,topComms,comms):
     # initial nodes per community
     initial = {}
     weights = []
-    K = ceil(0.10*N)
-    K = ceil(0.1*N)
-    print(K)
+    K = N
     # initialization with 0 
     for x in range(0,len(topComms)):
         initial[topComms[x]] = 0
@@ -227,12 +224,75 @@ def initialNodesMapping(N,topComms,comms):
             initial[topComms[x]] = initial[topComms[x]] + k
             # initial nodes decrement
             K = K - k
-    summe = 0
-    for x in range(0,len(initial)):
-        summe = summe + initial[x]
-    print(summe)
-    return initial        
+    return initial
 
+def commBorda(H,comms,x):
+    # initial dictionaries
+    ddc = {}
+    dcc = {}
+    dbc = {}
+    ddcList = []
+    dccList = []
+    dbcList = []
+    dc = {}
+    bc = {}
+    cc = {} 
+    finalList = []
+    total = {}
+    degreeC = nx.degree_centrality(H)
+    closenessC = nx.closeness_centrality(H)
+    betweennessC = nx.betweenness_centrality(H)
+    for l in range(0,len(comms[x])):
+        ddc[comms[x][l]] = degreeC[comms[x][l]]
+        dcc[comms[x][l]] = closenessC[comms[x][l]]
+        dbc[comms[x][l]] = betweennessC[comms[x][l]]
+    # get values
+    ddc_values = list(ddc.values())
+    dcc_values = list(dcc.values())
+    dbc_values = list(dbc.values())
+    # descending order
+    sorted_ddc = sorted(ddc_values, reverse = True)
+    sorted_dcc = sorted(dcc_values, reverse = True)
+    sorted_dbc = sorted(dbc_values, reverse = True)
+    for k in range(0,len(sorted_ddc)):
+        key = list(ddc.keys())[list(ddc.values()).index(sorted_ddc[k])]
+        ddcList.extend([key])
+        # deletes keys to prevent the appearance of the same node multiple times
+        del ddc[key]
+    for k in range(0,len(sorted_dcc)):
+        key = list(dcc.keys())[list(dcc.values()).index(sorted_dcc[k])]
+        dccList.extend([key])
+        # deletes keys to prevent the appearance of the same node multiple times
+        del dcc[key]
+    for k in range(0,len(sorted_dbc)):
+        key = list(dbc.keys())[list(dbc.values()).index(sorted_dbc[k])]
+        dbcList.extend([key])
+        # deletes keys to prevent the appearance of the same node multiple times
+        del dbc[key]       
+    votes = len(comms[x]) - 1
+    # votes acoring to position of each node
+    for k in range(0,len(ddcList)):
+        totalVotes = votes - k
+        dc[ddcList[k]] = totalVotes
+    for k in range(0,len(dbcList)):
+        totalVotes = votes - k
+        bc[dbcList[k]] = totalVotes
+    for k in range(0,len(dccList)):
+        totalVotes = votes - k
+        cc[dccList[k]] = totalVotes
+    # total votes
+    for key in dc:
+        total[key] = dc[key] + bc[key] + cc[key]        
+    # retun all nodes in desceding 
+    total_values = list(total.values())
+    sorted_total = sorted(total_values, reverse = True)
+    for k in range(0,len(sorted_total)):
+        key = list(total.keys())[list(total.values()).index(sorted_total[k])]
+        finalList.extend([key])
+        # delete keys to prevent the appereance of 2 or more same nodes
+        del total[key]
+    return finalList
+        
 # BETA
 def sameComm(start,end,comms):
     # find the community in which start node is

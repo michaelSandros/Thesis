@@ -28,10 +28,10 @@ if(option1 == 1 or option1 == 2):
             Number_of_nodes = int(input("Please, enter the number of the graph nodes:\n"))
             if(Number_of_nodes > 0):
                 G,labels,listofNodes,totalInfluence = randomGraph(Number_of_nodes)
-                randomThres(G)
                 for n in range(0,len(listofNodes)):
                     end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
                     totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
+                randomThres(G)
                 # add activation proballities for every edge
                 addProbs(G)
                 break
@@ -52,14 +52,12 @@ if(option1 == 1 or option1 == 2):
             # if yes
             if(os.path.isfile(fname)):
                 G,labels,listofNodes,totalInfluence = realGraph(fname)
-                print(labels)
-                print(G.number_of_nodes())
-                randomThres(G)
                 # total inluence for all nodes with incoming edges
                 for n in range(0,len(listofNodes)):
                     end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
                     totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
                 # add activation proballities for every edge
+                randomThres(G)
                 addProbs(G)
                 break
             # if no
@@ -132,34 +130,65 @@ if(option1 == 1 or option1 == 2):
                 print("The percentage must be bigger than 0 and lower or equal to 100.\n")
                 continue
         while True:
-            if(randomFlag == 1):
-                # get the label of nodes and extend them in a list
-                for i in range(0,len(labels)):
-                    nodesLabel.extend([i])
-                combinations = factorial(nodes)/(factorial(nodes - totalSeeds)*factorial(totalSeeds))
-                option7 = int(input("Enter the number of simulations.\n (range [1 %d])\n"%combinations))
-                if (option7 > 0 and option7 <= combinations):
-                    if(wholeFlag == 1):
-                        colorCounter = 0
-                        for i in range(0,option7):
-                            randomSeeds = random.sample(set(nodesLabel), totalSeeds)
-                            diffusion(G,randomSeeds,diffFlag,i)
-                        plt.show()
+            if(randomFlag == 2):
+                print("CGA")
+            elif(randomFlag == 0 or randomFlag == 1):
+                if(randomFlag == 1):
+                    # get the label of nodes and extend them in a list
+                    for i in range(0,len(labels)):
+                        nodesLabel.extend([i])
+                    combinations = factorial(nodes)/(factorial(nodes - totalSeeds)*factorial(totalSeeds))
+                    option7 = int(input("Enter the number of simulations.\n (range [1 %d])\n"%combinations))
+                    if (option7 > 0 and option7 <= combinations):
+                        if(wholeFlag == 1):
+                            if(diffFlag == 1):
+                                for i in range(0,5):
+                                    if(i == 0):
+                                        randomThres(G)
+                                        title = "Random Threshold"
+                                    elif(i == 1):
+                                        outDegreeThres(G)
+                                        title = "OutDegree Threshold"
+                                    elif(i == 2):
+                                        degreeCentralityThres(G)
+                                        title = "Degree Centrality Threshold"
+                                    elif(i == 3):
+                                        betweenCentralityThres(G)
+                                        title = "Betweeness Centrality  Threshold"
+                                    else:
+                                        mixedThres(G)
+                                        title = "Mixed Centrality  Threshold"
+                                    randomLTdiffusion(G,nodesLabel,option7,title,totalSeeds)
+                                    plt.show()
+                            else:
+                                for i in range(0,option7):
+                                    # random seeds
+                                    randomSeeds = random.sample(set(nodesLabel), totalSeeds)
+                                    randomICdiffusion(G,i,randomSeeds)
+                                plt.show()
+                        else:
+                                # BETA
+                                if(diffFlag == 2):
+                                    perCommRandomICDiffusion(G,totalSeeds,option7)
+                                    plt.show()
+                                else:
+                                    perCommRandomLTDiffusion(G,totalSeeds,option7)
                     else:
-                            print("Per comm")
-                else:
-                    print("The number of summulations must be at least 1.\n")
-            elif(randomFlag == 0):
-                if(wholeFlag == 1):
+                        print("The number of summulations must be at least 1 and lower or equal to %d.\n"%combinations)
+                        continue
+                elif(randomFlag == 0):
                     # if topNodes are already initialized
                     # (avoid multiple long running calculations Borda Calculation for the same graph)
                     try:
-                      topNodes
+                        topNodes
                     except NameError:
-                      topNodes = Borda(G)
-                    wholeDeffusion(G,totalSeeds,topNodes,diffFlag)
-                else:
-                    print("Per comm")
-            else:
-                print("CGA")
+                        topNodes = wholeBorda(G)
+                    if(wholeFlag == 1):
+                        wholeDiffusion(G,totalSeeds,topNodes,diffFlag)
+                        plt.show()
+                    else:
+                        if(diffFlag == 2):
+                            perCommICDiffusion(G,totalSeeds)
+                        else:
+                            perCommLTDiffusion(G,totalSeeds)
             break

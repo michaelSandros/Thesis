@@ -103,10 +103,10 @@ def checkInfluence(G,destination,influence):
                                     nodeSum = nodeSum + i
                                     break
     return nodeSum
+
 # add activation probabilities     
 def addProbs(G):
       for e in G.edges():
-           random.seed(datetime.now())
            i = random.uniform(0,1)
            G[e[0]][e[1]]['act_prob'] = i
 
@@ -160,9 +160,12 @@ def mixedThres(G):
         bc = nx.betweenness_centrality(G)
         dc = nx.degree_centrality(G)
         for x  in G.nodes():
-             G.node[x]['threshold'] = (1/2*(bc[x] + dc[x]))/max(bc[x],dc[x])
-             if(G.node[x]['threshold'] > 1):
-                     G.node[x]['threshold'] = 1.0
+             if(bc[x] == 0 and bc[c] == 0):
+                 G.node[x]['threshold'] = 0
+             else:
+                     G.node[x]['threshold'] = (1/2*(bc[x] + dc[x]))/max(bc[x],dc[x])
+                     if(G.node[x]['threshold'] > 1):
+                             G.node[x]['threshold'] = 1.0
                              
         
 # communities drawing
@@ -271,7 +274,7 @@ def diffusionSizes(G,outcome,comms):
                 targetNodes[x + 1] = [counter]
         return activeNodes,targetNodes
 
-def Borda(G):
+def wholeBorda(G):
         # total number of nodes
         nodes = G.number_of_nodes()
         # dictionary with degree centrality for each node
@@ -296,7 +299,7 @@ def Borda(G):
         degreeC = nx.degree_centrality(G)
         closenessC = nx.closeness_centrality(G)
         betweennessC = nx.betweenness_centrality(G)
-        for x in range(0,G.number_of_nodes()):
+        for x in range(0,nodes):
                 ddc[x] = degreeC[x]
                 dcc[x] = closenessC[x]
                 dbc[x] = betweennessC[x]
@@ -350,51 +353,284 @@ def Borda(G):
                 del total[key]
         return finalList
 
-def wholeDeffusion(G,totalSeeds,topNodes,diffFlag):
-        # top totalSeeds nodes according to Borda
-        seedNodes = topNodes[0:totalSeeds]
-        if(len(seedNodes) == 1):
-                label = "Seed Node: "
-        else:
-                label = "Seed Nodes: "
-        for x in range(0,len(seedNodes)):
-                label = label + str(seedNodes[x]) + " "
-        # linear threshold model
+def modelDiffusion(G,seedNodes,color,label,diffFlag):
         if(diffFlag == 1):
                 diffusion = linear_threshold(G,seedNodes,-4)
                 title = "Linear Threshold Model"
-        # intependent cascade model
         else:
                 diffusion = independent_cascade(G,seedNodes,-4)
                 title = "Independent Cascade Model"
-        print(diffusion)
         # sum of activated nodes per step
-        activatedNodes, step = calculateNodes(G,diffusion)
+        print("diffusion")
+        print(diffusion)
+        activatedNodes, step = calculateWhole(G,diffusion)
+        print("activatedNodes")
+        print(activatedNodes)
         # total number of graph nodes
         myInt = (G.number_of_nodes())
         # percentage of activated nodes to total nodes
         newList = [(x / myInt)*100 for x in activatedNodes]
-        stepbystep(newList,step,title,label)
+        print(newList)
+        stepbystepPlot(newList,step,title,label,color)
 
-def diffusion(G,seeds,diffFlag,i):
+def wholeDiffusion(G,totalSeeds,topNodes,diffFlag):
+        # top totalSeeds nodes according to Borda
+        seedNodes = topNodes[0:totalSeeds]
+        print(seedNodes)
+        # linear threshold model
+        if(diffFlag == 1):
+                for k in range(0,5):
+                    if(k == 0):
+                        randomThres(G)
+                        color = "r"
+                        label = "Random Threshold"
+                        modelDiffusion(G,seedNodes,color,label,diffFlag)
+                    elif(k == 1):
+                        outDegreeThres(G)
+                        color = "sienna"
+                        label = "OutDegree Threshold"
+                        modelDiffusion(G,seedNodes,color,label,diffFlag)
+                    elif(k == 2):
+                        degreeCentralityThres(G)
+                        color = "m"
+                        label = "Degree Centrality Threshold"
+                        modelDiffusion(G,seedNodes,color,label,diffFlag)
+                    elif(k == 3):
+                        betweenCentralityThres(G)
+                        color = "b"
+                        label = "Betweeness Centrality  Threshold"
+                        modelDiffusion(G,seedNodes,color,label,diffFlag)
+                    else:
+                        mixedThres(G)
+                        color = "k"
+                        label = "Mixed Centrality  Threshold"
+                        modelDiffusion(G,seedNodes,color,label,diffFlag)
+                plt.show()
+        else:
+                color = "r"
+                label = "Random Proballities"
+                modelDiffusion(G,seedNodes,color,label,diffFlag)
+
+def randomICdiffusion(G,option7,seeds):
+        # label
         if(len(seeds) == 1):
                 label = "Seed Node: "
         else:
                 label = "Seed Nodes: "
         for x in range(0,len(seeds)):
                 label = label + str(seeds[x]) + " "
-        if(diffFlag == 1):
-                diffusion = linear_threshold(G,seeds,-4)
-                title = "Linear Threshold Model"
         # intependent cascade model
-        else:
-                diffusion = independent_cascade(G,seeds,-4)
-                title = "Independent Cascade Model"
-        print(diffusion)
+        diffusion = independent_cascade(G,seeds,-4)
+        title = "Independent Cascade Model"
         # sum of activated nodes per step
-        activatedNodes, steps = calculateNodes(G,diffusion)
+        activatedNodes, steps = calculateWhole(G,diffusion)
         # total number of graph nodes
         myInt = (G.number_of_nodes())
         # percentage of activated nodes to total nodes
         newList = [(x / myInt)*100 for x in activatedNodes]
-        multiplePlots(newList,steps,i,title,label)
+        # plot for every simulation
+        multiplePlots(newList,steps,option7,title,label)
+
+def randomLTdiffusion(G,nodesLabel,option,title,totalSeeds):
+        for k in range(0,option):
+            # random seeds  
+            randomSeeds = random.sample(set(nodesLabel), totalSeeds)
+            if(len(randomSeeds) == 1):
+                        label = "Seed Node: "
+            else:
+                        label = "Seed Nodes: "
+            for x in range(0,len(randomSeeds)):
+                label = label + str(randomSeeds[x]) + " "
+            # linear threshold model
+            diffusion = linear_threshold(G,randomSeeds,-4)
+            # sum of activated nodes per step
+            activatedNodes, steps = calculateWhole(G,diffusion)
+            # total number of graph nodes
+            myInt = (G.number_of_nodes())
+            # percentage of activated nodes to total nodes
+            newList = [(x / myInt)*100 for x in activatedNodes]
+            # plot for every simulation
+            multiplePlots(newList,steps,k,title,label)
+
+def perCommICDiffusion(G,seedNodes):
+    comms, values = commNum(G)
+    diffSteps = []
+    totalActive = []
+    topComms = communityDensity(G,comms)
+    initial = initialNodesMapping(seedNodes,topComms,comms) 
+    for e in range(0,len(comms)):
+        subGraph = G.subgraph(comms[e])
+        topNodes = commBorda(subGraph,comms,e)
+        if(initial[e] > len(comms[e])):
+                initial[e] = len(comms[e])
+        commSeeds = topNodes[0:initial[e]]
+        # intependent cascade model
+        diffusion = independent_cascade(subGraph,commSeeds,-4)
+        title = "Independent Cascade Model"
+        activatedNodes, step = calculateWhole(subGraph,diffusion)
+        totalActive = mergeResults(totalActive,activatedNodes)
+    color = "r"
+    label = "Per Communities"
+    myInt = G.number_of_nodes()
+    newList = [(x / myInt)*100 for x in totalActive]
+    for x in range(0,len(newList)):
+        diffSteps.extend([x])
+    stepbystepPlot(newList,diffSteps,title,label,color)
+    plt.show()
+
+def perCommLTDiffusion(G,seedNodes):
+    comms, values = commNum(G)
+    diffSteps = []
+    totalActive = []
+    topComms = communityDensity(G,comms)
+    initial = initialNodesMapping(seedNodes,topComms,comms) 
+    for k in range(0,5):
+        diffSteps = []
+        totalActive = []
+        if(k == 0):
+            randomThres(G)
+            title = "Linear Threshold Model: Random Threshold - Top Seed Nodes per Community"
+        elif(k == 1):
+            outDegreeThres(G)
+            title = "Linear Threshold Model: OutDegree Threshold - Top Seed Nodes per Community"
+        elif(k == 2):
+            degreeCentralityThres(G)
+            title = "Linear Threshold Model: Degree Centrality Threshold - Top Seed Nodes per Community"
+        elif(k == 3):
+            betweenCentralityThres(G)
+            title = "Linear Threshold Model: Betweenness Centrality Threshold - Top Seed Nodes per Community"
+        else:
+            mixedThres(G)
+            title = "Linear Threshold Model: Mixed Centrality Threshold - Top Seed Nodes per Community"
+        for e in range(0,len(comms)):
+                # subgraph
+                subGraph = G.subgraph(comms[e])
+                # top nodes
+                topNodes = commBorda(subGraph,comms,e)
+                # if a community has more initial nodes than nodes
+                if(initial[e] > len(comms[e])):
+                    initial[e] = len(comms[e])
+                # top seeds 
+                commSeeds = topNodes[0:initial[e]]
+                # label
+                label = "Per Comms"
+                # permorm the IC model
+                diffusion = linear_threshold(subGraph,commSeeds,-4)
+                # active nodes per step
+                activatedNodes, step = calculateWhole(subGraph,diffusion)
+                # merge result of the diffusion
+                totalActive = mergeResults(totalActive,activatedNodes)
+        color = "r"
+        # total node number
+        myInt = (G.number_of_nodes())
+        # percentage
+        newList = [(x / myInt)*100 for x in totalActive]
+        # total steps
+        for x in range(0,len(newList)):
+                diffSteps.extend([x])
+        # plot for every simulation
+        stepbystepPlot(newList,diffSteps,title,label,color)
+        plt.show()
+        
+def perCommRandomICDiffusion(G,totalSeeds,simulations):
+    # total active nodes per step
+    totalActive = []
+    # communities of the graph
+    comms, values = commNum(G)
+    # top communities according to the density
+    topComms = communityDensity(G,comms)
+    # initial nodes per community
+    initial = initialNodesMapping(totalSeeds,topComms,comms)
+    # plot title
+    title = "Independent Cascade Model: Random Seed Nodes per Community"
+    # for every simulation
+    for i in range(0,simulations):
+        # initialize the lists
+        diffSteps = []
+        totalActive = []
+        activatedNodes = []
+        # for every community
+        for e in range(0,len(comms)):
+            # community
+            subGraph = G.subgraph(comms[e])
+            # if a community has more initial nodes than nodes
+            if(initial[e] > len(comms[e])):
+                initial[e] = len(comms[e])
+            # random seeds 
+            randomSeeds = random.sample(set(comms[e]), initial[e])
+            # label
+            label = "Number of Iteration: " + str(i)
+            # permorm the IC model
+            diffusion = independent_cascade(subGraph,randomSeeds,-4)
+            # active nodes per step
+            activatedNodes, step = calculateWhole(subGraph,diffusion)
+            # merge result of the diffusion
+            totalActive = mergeResults(totalActive,activatedNodes)
+            color = "r"
+        # total node number
+        myInt = (G.number_of_nodes())
+        # percentage
+        newList = [(x / myInt)*100 for x in totalActive]
+        # total steps
+        for x in range(0,len(newList)):
+            diffSteps.extend([x])
+        # plot for every simulation
+        multiplePlots(newList,diffSteps,i,title,label) 
+            
+def perCommRandomLTDiffusion(G,totalSeeds,simulations):
+    # total active nodes per step
+    totalActive = []
+    # communities of the graph
+    comms, values = commNum(G)
+    # top communities according to the density
+    topComms = communityDensity(G,comms)
+    # initial nodes per community
+    initial = initialNodesMapping(totalSeeds,topComms,comms)
+    for k in range(0,5):
+        if(k == 0):
+            randomThres(G)
+            title = "Linear Threshold Model: Random Threshold - Random Seed Nodes per Community"
+        elif(k == 1):
+            outDegreeThres(G)
+            title = "Linear Threshold Model: OutDegree Threshold - Random Seed Nodes per Community"
+        elif(k == 2):
+            degreeCentralityThres(G)
+            title = "Linear Threshold Model: Degree Centrality Threshold - Random Seed Nodes per Community"
+        elif(k == 3):
+            betweenCentralityThres(G)
+            title = "Linear Threshold Model: Betweenness Centrality Threshold - Random Seed Nodes per Community"
+        else:
+            mixedThres(G)
+            title = "Linear Threshold Model: Mixed Centrality Threshold - Random Seed Nodes per Community"
+        for i in range(0,simulations):
+            # initialize the lists
+            diffSteps = []
+            totalActive = []
+            activatedNodes = []
+            # for every community
+            for e in range(0,len(comms)):
+                # subgraph
+                subGraph = G.subgraph(comms[e])
+                # if a community has more initial nodes than nodes
+                if(initial[e] > len(comms[e])):
+                    initial[e] = len(comms[e])
+                # random seeds 
+                randomSeeds = random.sample(set(comms[e]), initial[e])
+                # label
+                label = "Number of Iteration: " + str(i)
+                # permorm the IC model
+                diffusion = linear_threshold(subGraph,randomSeeds,-4)
+                # active nodes per step
+                activatedNodes, step = calculateWhole(subGraph,diffusion)
+                # merge result of the diffusion
+                totalActive = mergeResults(totalActive,activatedNodes)
+            # total node number
+            myInt = (G.number_of_nodes())
+            # percentage
+            newList = [(x / myInt)*100 for x in totalActive]
+            # total steps
+            for x in range(0,len(newList)):
+                diffSteps.extend([x])
+            # plot for every simulation
+            multiplePlots(newList,diffSteps,i,title,label)
+        plt.show()

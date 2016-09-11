@@ -1,8 +1,8 @@
 import networkx as nx
 
-# returns the total activated nodes of the diffusion and the steps
+# returns the total activated nodes of the diffusion step by step
 # in the whole graph
-def calculateNodes(G,outcome):
+def calculateWhole(G,outcome):
     stepbystep = []
     step = []
     totalSum = 0
@@ -34,3 +34,38 @@ def communityCalculation(comms,number,outcome):
             if(comms[number][i] == flattend[x]):
                 totalActivated = totalActivated + 1
     return totalActivated
+
+# returns the total activated nodes of the diffusion in the whole graph
+def calculateNodes(p,G):
+    totalNodes = G.number_of_nodes()
+    # all nodes were the seeders of the diffusion
+    if(len(p[0]) == totalNodes):
+       totalActivated = totalNodes
+    # if in the first step noone node is activated
+    elif (len(p[1]) == 0):
+        totalActivated = len(p[0])
+    # else find how many nodes activated
+    else:
+        totalActivated = len(p[0])
+        # for every step find the activated nodes
+        # for every sublist
+        for e in range  (1,len(p)):
+            for k in range (0,len(p[e])):
+                totalActivated = totalActivated + 1
+    return totalActivated
+
+def mergeResults(totalActive,activatedNodes):
+    for e in range(0,len(activatedNodes)):
+        if(len(totalActive) == e):
+            if e == 0:
+                totalActive.extend([0])
+            else:
+                totalActive.extend([totalActive[e - 1]])
+    for e in range(0,len(activatedNodes)):
+        totalActive[e] = totalActive[e] + activatedNodes[e]
+    e = e + 1
+    for k in range(e,len(totalActive)):
+        totalActive[k] = activatedNodes[e - 1] + totalActive[k]
+    return totalActive
+        
+        
