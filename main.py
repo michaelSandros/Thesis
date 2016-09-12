@@ -22,7 +22,6 @@ while True:
         print("Wrong option.\n")
 
 if(option1 == 1 or option1 == 2):
-    nodesLabel = []
     if(option1 == 1):
         while True:
             Number_of_nodes = int(input("Please, enter the number of the graph nodes:\n"))
@@ -132,52 +131,47 @@ if(option1 == 1 or option1 == 2):
         while True:
             if(randomFlag == 2):
                 if(diffFlag == 2):
-                    IC_CGA(G,nodesLabel,totalSeeds,diffFlag)
+                    IC_CGA(G,totalSeeds,diffFlag)
                 else:
-                    LT_CGA(G,nodesLabel,totalSeeds,diffFlag)
+                    LT_CGA(G,totalSeeds,diffFlag)
             elif(randomFlag == 0 or randomFlag == 1):
                 if(randomFlag == 1):
-                    # get the label of nodes and extend them in a list
-                    for i in range(0,len(labels)):
-                        nodesLabel.extend([i])
-                    combinations = factorial(nodes)/(factorial(nodes - totalSeeds)*factorial(totalSeeds))
-                    option7 = int(input("Enter the number of simulations.\n (range [1 %d])\n"%combinations))
-                    if (option7 > 0 and option7 <= combinations):
+                    option7 = int(input("Enter the number of simulations.\n"))
+                    if (option7 > 0):
                         if(wholeFlag == 1):
                             if(diffFlag == 1):
                                 for i in range(0,5):
                                     if(i == 0):
                                         randomThres(G)
-                                        title = "Random Threshold"
+                                        title = "Linear Threshold: Random Seed Nodes - Random Threshold"
                                     elif(i == 1):
                                         outDegreeThres(G)
-                                        title = "OutDegree Threshold"
+                                        title = "Linear Threshold: Random Seed Nodes - OutDegree Threshold"
                                     elif(i == 2):
                                         degreeCentralityThres(G)
-                                        title = "Degree Centrality Threshold"
+                                        title = "Linear Threshold: Random Seed Nodes - Degree Centrality Threshold"
                                     elif(i == 3):
                                         betweenCentralityThres(G)
-                                        title = "Betweeness Centrality  Threshold"
+                                        title = "Linear Threshold: Random Seed Nodes - Betweeness Centrality  Threshold"
                                     else:
                                         mixedThres(G)
-                                        title = "Mixed Centrality  Threshold"
-                                    randomLTdiffusion(G,nodesLabel,option7,title,totalSeeds)
+                                        title = "Linear Threshold: Random Seed Nodes - Mixed Centrality  Threshold"
+                                    randomLTdiffusion(G,labels,option7,title,totalSeeds)
                                     plt.show()
                             else:
                                 for i in range(0,option7):
                                     # random seeds
-                                    randomSeeds = random.sample(set(nodesLabel), totalSeeds)
+                                    randomSeeds = random.sample(set(labels), totalSeeds)
                                     randomICdiffusion(G,i,randomSeeds)
                                 plt.show()
                         else:
-                                # BETA
                                 if(diffFlag == 2):
                                     perCommRandomICDiffusion(G,totalSeeds,option7)
                                     plt.show()
                                 else:
                                     perCommRandomLTDiffusion(G,totalSeeds,option7)
                     else:
-                        print("The number of summulations must be at least 1 and lower or equal to %d.\n"%combinations)
+                        print("The number of summulations must be at least 1 and lower")
                         continue
                 elif(randomFlag == 0):
                     # if topNodes are already initialized

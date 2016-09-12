@@ -129,6 +129,7 @@ def perComm(G,comms,e,wholeGraph,flag,K):
     # lists
     interComms = []
     interComms.extend(comms[e])
+    print(interComms)
     Ij = []
     d = {}
     NoN = wholeGraph.number_of_nodes()
