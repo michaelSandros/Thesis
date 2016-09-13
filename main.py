@@ -30,6 +30,7 @@ if(option1 == 1 or option1 == 2):
                 for n in range(0,len(listofNodes)):
                     end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
                     totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
+                # random threshold for every node
                 randomThres(G)
                 # add activation proballities for every edge
                 addProbs(G)
@@ -55,8 +56,9 @@ if(option1 == 1 or option1 == 2):
                 for n in range(0,len(listofNodes)):
                     end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
                     totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
-                # add activation proballities for every edge
+                # add random threshold for every node
                 randomThres(G)
+                # add activation proballities for every edge
                 addProbs(G)
                 break
             # if no

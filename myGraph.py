@@ -2,7 +2,6 @@
 import community
 import matplotlib.pyplot as plt
 import networkx as nx
-import random
 from fileCopy import *
 from linear_threshold import *
 from independent_cascade import *
@@ -16,7 +15,6 @@ from plots import *
 
 # random graph creation
 def randomGraph(n):
-        # lower and upper bounds for random number of nodes
         listofNodes = []
         random.seed(datetime.now())
         # directed graph
@@ -33,7 +31,10 @@ def randomGraph(n):
         # randrom edges
         for n in G.nodes():
                 for k in G.nodes():
-                        v = randint(0,10)
+                        v = randint(0,9)
+                        # if the nodes are not the same
+                        # if the random number is bigger than 4
+                        # add edge
                         if n != k and v >= 5:
                                 G.add_edge(n,k)
                         else:
@@ -139,7 +140,14 @@ def outDegreeThres(G):
 # random threshold for all nodes in the range [0,1)
 def randomThres(G):
         for e in G.nodes():
-                G.node[e]['threshold'] = random.uniform(0, 1)
+                i = random.uniform(0, 1)
+                G.node[e]['threshold'] = i
+                G.node[e]['initial_threshold'] = i
+                
+# return to the initial random thresholds   
+def initialRandom(G):
+        for e in G.nodes():
+                G.node[e]['threshold'] = G.node[e]['initial_threshold']
 
 # degree centrality threshold
 def degreeCentralityThres(G):
@@ -199,82 +207,6 @@ def drawstepbystep(G,outcome,labels):
                 # axis off
                 plt.axis('off')
                 plt.show()
-        
-# prints the nodes in every community
-def label2number(comms,labels):
-    for x in range(0,len(comms)):
-        if (len(comms[x]) > 1):
-            print("The following nodes belong in the Community %d:" %x)
-        else:
-            print("The following node belongs in the Community %d:" %x)
-        for i in range(0,len(comms[x])):
-            print(labels.get(comms[x][i]))
-
-# prints the number of the seed nodes
-def seedNum(seeds,labels):
-    if(len(seeds) == 1):
-        print("The following node is the seed of the diffusion:")
-    else:
-        print("The following nodes are the seeds of the diffusion:")
-    for x in range(0,len(seeds)):
-        print(labels.get(seeds[x]))
-
-# prints the number of the activated nodes
-# in each step
-def diffNumbers(outcome,labels):
-        for x in range(1,len(outcome)):
-                if(len(outcome[x]) > 0):
-                        if(len(outcome[x]) == 1):
-                                print("The following node is activated in the step %d:" %x)
-                        else:
-                                print("The following nodes are activated in the step %d:" %x)
-                        for i in range(0,len(outcome[x])):
-                                print(labels.get(outcome[x][i]))
-                else:
-                        print("In the step %d no further activations were possible." %x)
-                        print("Diffusion terminated")
-                        
-def diffusionSizes(G,outcome,comms):
-        # set activated flag for all nodes to False
-        nx.set_node_attributes(G, 'activated', False)
-        counter = 0
-        targetCounter = 0
-        # list of activated nodes
-        activatedList = []
-        targetNodes = [[0] for x in range(0,len(outcome))]
-        activeNodes = [[0] for x in range(0,len(outcome))]
-        active = [[0] for x in range(0,len(outcome))]
-        # find the activated set of nodes in each step of the diffusion
-        for x in range(0,len(outcome) - 1):
-                for e in range(0,len(outcome[x])):
-                       counter = counter + 1;
-                activeNodes[x + 1] = [counter]
-        # find the target set of nodes in each step of the diffusion        
-        for x in range(0,len(outcome) - 1):
-                nx.set_node_attributes(G, 'counted', False)
-                counter = 0
-                # extend the list with the new activated nodes
-                activatedList.extend(outcome[x])
-                # set the activated flag of the nodes to True when the node is active
-                for n in range(0,len(activatedList)):
-                        G.node[activatedList[n]]['activated'] = True                   
-                # for all elements in the list
-                for i in range(0,len(activatedList)):
-                        # for all edges
-                        for e in G.edges():
-                                # if the edge source is the same with the i-th element of the list
-                                if (e[0] == activatedList[i]):
-                                        flag = sameComm(e[0],e[1],comms)
-                                        if(flag):
-                                                # if the node is not activated
-                                                if(G.node[e[1]]['activated'] == False):
-                                                        # if the node does not already counted
-                                                        if(G.node[e[1]]['counted'] == False):
-                                                                # increment counter
-                                                                counter = counter + 1
-                                                                G.node[e[1]]['counted'] = True
-                targetNodes[x + 1] = [counter]
-        return activeNodes,targetNodes
 
 def wholeBorda(G):
         # total number of nodes
@@ -348,6 +280,7 @@ def wholeBorda(G):
                 total[key] = dc[key] + bc[key] + cc[key]
         total_values = list(total.values())
         sorted_total = sorted(total_values, reverse = True)
+        # return the nodes according to votes
         for k in range(0,len(sorted_total)):
                 key = list(total.keys())[list(total.values()).index(sorted_total[k])]
                 finalList.extend([key])
@@ -369,6 +302,11 @@ def modelDiffusion(G,seedNodes,color,label,diffFlag,marker):
         myInt = (G.number_of_nodes())
         # percentage of activated nodes to total nodes
         newList = [(x / myInt)*100 for x in activatedNodes]
+        print(title)
+        if(diffFlag == 1):
+                print(label)
+        print(newList)
+        print("")
         stepbystepPlot(newList,step,title,label,color,marker)
 
 def wholeDiffusion(G,totalSeeds,topNodes,diffFlag):
@@ -379,7 +317,7 @@ def wholeDiffusion(G,totalSeeds,topNodes,diffFlag):
                 # different thresholds
                 for k in range(0,5):
                     if(k == 0):
-                        randomThres(G)
+                        initialRandom(G)
                         color = "r"
                         label = "Random Threshold"
                         marker = "o"
@@ -428,6 +366,10 @@ def randomICdiffusion(G,option7,seeds):
         myInt = (G.number_of_nodes())
         # percentage of activated nodes to total nodes
         newList = [(x / myInt)*100 for x in activatedNodes]
+        print(title)
+        print(label)
+        print(newList)
+        print("")
         # plot for every simulation
         multiplePlots(newList,steps,option7,title,label)
 
@@ -449,6 +391,10 @@ def randomLTdiffusion(G,labels,option,title,totalSeeds):
             myInt = (G.number_of_nodes())
             # percentage of activated nodes to total nodes
             newList = [(x / myInt)*100 for x in activatedNodes]
+            print(title)
+            print(label)
+            print(newList)
+            print("")
             # plot for every simulation
             multiplePlots(newList,steps,k,title,label)
 
@@ -495,6 +441,9 @@ def perCommICDiffusion(G,seedNodes):
     # total steps
     for x in range(0,len(newList)):
         diffSteps.extend([x])
+    print(title)
+    print(newList)
+    print("")
     stepbystepPlot(newList,diffSteps,title,label,color,marker)
     plt.show()
 
@@ -513,7 +462,7 @@ def perCommLTDiffusion(G,seedNodes):
         diffSteps = []
         totalActive = []
         if(k == 0):
-            randomThres(G)
+            initialRandom(G)
             label = "Random Threshold"
             color = "r"
             marker = "o"
@@ -557,6 +506,10 @@ def perCommLTDiffusion(G,seedNodes):
         myInt = (G.number_of_nodes())
         # percentage of activated nodes to total nodes
         newList = [(x / myInt)*100 for x in totalActive]
+        print(title)
+        print(label)
+        print(newList)
+        print("")
         # total steps
         for x in range(0,len(newList)):
                 diffSteps.extend([x])
@@ -605,6 +558,9 @@ def perCommRandomICDiffusion(G,totalSeeds,simulations):
         # total steps
         for x in range(0,len(newList)):
             diffSteps.extend([x])
+        print(label)
+        print(newList)
+        print("")
         # plot for every simulation
         multiplePlots(newList,diffSteps,i,title,label) 
             
@@ -620,7 +576,7 @@ def perCommRandomLTDiffusion(G,totalSeeds,simulations):
     # random thresholds
     for k in range(0,5):
         if(k == 0):
-            randomThres(G)
+            initialRandom(G)
             title = "Linear Threshold Model: Random Threshold - Random Seed Nodes per Community"
         elif(k == 1):
             outDegreeThres(G)
@@ -660,6 +616,10 @@ def perCommRandomLTDiffusion(G,totalSeeds,simulations):
             myInt = (G.number_of_nodes())
             # percentage of activated nodes to total nodes
             newList = [(x / myInt)*100 for x in totalActive]
+            print(title)
+            print(label)
+            print(newList)
+            print("")
             # total steps
             for x in range(0,len(newList)):
                 diffSteps.extend([x])
@@ -703,6 +663,9 @@ def IC_CGA(G,totalSeeds,diffFlag):
     # total steps
     for x in range(0,len(newList)):
         diffSteps.extend([x])
+    print(title)
+    print(newList)
+    print("")
     stepbystepPlot(newList,diffSteps,title,label,color,marker)
     plt.show()
         
@@ -711,7 +674,7 @@ def LT_CGA(G,totalSeeds,diffFlag):
     # different thresholds
     for k in range(0,5):
         if(k == 0):
-            randomThres(G)
+            initialRandom(G)
             label = "Random Threshold"
             color = "r"
             marker = "o"
@@ -727,7 +690,7 @@ def LT_CGA(G,totalSeeds,diffFlag):
             marker = "x"
         elif(k == 3):
             betweenCentralityThres(G)
-            label = " Betweenness Centrality"
+            label = "Betweenness Centrality"
             color = "m"
             marker = "+"
         else:
@@ -764,6 +727,10 @@ def LT_CGA(G,totalSeeds,diffFlag):
         myInt = G.number_of_nodes()
         # percentage of activated nodes to total nodes
         newList = [(x / myInt)*100 for x in totalActive]
+        print(title)
+        print(label)
+        print(newList)
+        print("")
         # total steps
         for x in range(0,len(newList)):
             diffSteps.extend([x])

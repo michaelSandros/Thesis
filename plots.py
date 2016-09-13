@@ -2,11 +2,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# 
 def stepbystepPlot(active,steps,title,label,color,marker):
     plt.xlabel('Step')
     plt.ylabel('Percentage of Active Nodes')
     plt.title(title)
-    plt.axis([0, len(steps) + 1, 0, 105])
+    plt.axis([0, len(steps) + 5, 0, 105])
     plt.plot(steps, active, ls = "-", color = color, label = label,marker = marker)
     if(len(label) > 0):
         legend = plt.legend(loc = 'best', shadow = False)
@@ -47,7 +48,7 @@ def multiplePlots(active,steps,i,title,label):
         plt.xlabel('Step')
         plt.ylabel('Percentage of Active Nodes')
         plt.title(title)
-        plt.axis([0, len(steps) + 1, min(active) - 1, 105])
+        plt.axis([0, len(steps) + 5, min(active) - 1, 105])
         plt.plot(steps, active, ls = "-",color = color, label = label,marker = marker)
         legend = plt.legend(loc = 'best', shadow = False)
         frame = legend.get_frame()

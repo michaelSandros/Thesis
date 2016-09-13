@@ -1,4 +1,5 @@
 import networkx as nx
+import itertools
 
 # returns the total activated nodes of the diffusion step by step
 # in the whole graph
@@ -12,28 +13,25 @@ def calculateWhole(G,outcome):
         step.extend([x])
     return stepbystep,step
 
-# returns the total activated nodes of the diffusion
-# in a single community
+# returns the total activated nodes of the diffusion in a single community
 def communityCalculation(comms,number,outcome):
-    totalActivated = 0
-    # converts the list of lists to a single list
-    flattend = [val for sublist in outcome for val in sublist]
-    # calculates the seed nodes of the communiy to the totalActivated nodes sum
-    for x in range(0,len(comms[number])):
-        for e in range(0,len(outcome[0])):
-            if(comms[number][x] == outcome[0][e]):
-                totalActivated = totalActivated + 1
-    # removes the seed nodes from the list
+    # total activated
+    counter = 0
+    # flag
+    flag = False
+    # if there is at least 1 seed number in the community with the specific number
     for x in range(0,len(outcome[0])):
-        k = outcome[0][x]
-        flattend.remove(k)
-    # the counter increments when a node in the community
-    # is activated by the diffusion
-    for i in range(0,len(comms[number])):
-        for x in range(0,len(flattend)):
-            if(comms[number][i] == flattend[x]):
-                totalActivated = totalActivated + 1
-    return totalActivated
+        for i in range(0,len(comms[number])):
+            if(outcome[0][x] == comms[number][i]):
+                flag = True
+    # if there is at least 1
+    if(flag):
+        # find the total activated nodes in that community
+        merged = list(itertools.chain.from_iterable(outcome))
+        for x in range(0,len(merged)):
+            if(merged[x] in comms[number]):
+                counter = counter + 1
+    return counter
 
 # returns the total activated nodes of the diffusion in the whole graph
 def calculateNodes(p,G):
@@ -54,6 +52,7 @@ def calculateNodes(p,G):
                 totalActivated = totalActivated + 1
     return totalActivated
 
+# add the activated nodes
 def mergeResults(totalActive,activatedNodes):
     for e in range(0,len(activatedNodes)):
         if(len(totalActive) == e):
@@ -61,6 +60,8 @@ def mergeResults(totalActive,activatedNodes):
                 totalActive.extend([0])
             else:
                 totalActive.extend([totalActive[e - 1]])
+    # for every new community add the activated nodes
+    # per step with the previous results
     for e in range(0,len(activatedNodes)):
         totalActive[e] = totalActive[e] + activatedNodes[e]
     e = e + 1
