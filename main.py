@@ -4,6 +4,7 @@ from independent_cascade import *
 from calculateNodes import *
 import os.path
 from os.path import isfile, join
+import matplotlib.pyplot as plt
 from os import listdir
 from math import *
 from plots import *
@@ -27,13 +28,6 @@ if(option1 == 1 or option1 == 2):
             Number_of_nodes = int(input("Please, enter the number of the graph nodes:\n"))
             if(Number_of_nodes > 0):
                 G,labels,listofNodes,totalInfluence = randomGraph(Number_of_nodes)
-                for n in range(0,len(listofNodes)):
-                    end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
-                    totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
-                # random threshold for every node
-                randomThres(G)
-                # add activation proballities for every edge
-                addProbs(G)
                 break
             else:
                 print("Invalid option, please try again.\n")
@@ -52,19 +46,30 @@ if(option1 == 1 or option1 == 2):
             # if yes
             if(os.path.isfile(fname)):
                 G,labels,listofNodes,totalInfluence = realGraph(fname)
-                # total inluence for all nodes with incoming edges
-                for n in range(0,len(listofNodes)):
-                    end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
-                    totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
-                # add random threshold for every node
-                randomThres(G)
-                # add activation proballities for every edge
-                addProbs(G)
                 break
             # if no
             else:
                 print("File does not exist.\n")
                 onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+    # add random threshold for every node
+    randomThres(G)
+    # add influence for every edge of the graph
+    for n in range(0,len(listofNodes)):
+        end = list(labels.keys())[list(labels.values()).index(listofNodes[n])]
+        totalInfluence[n][0] = checkInfluence(G,end,totalInfluence[n][0])
+    while True:
+        prob = float(input("Please, choose the activation probability: Range [0 1].\n"))
+        if(prob >= 0 and prob <= 1):
+            break
+        else:
+            print("Probality must be bigger than 0 and lower or equal to 1.\n")	
+    addProbs(G,prob)
+    # number of nodes
+    print("Number of Nodes: %d" %G.number_of_nodes())
+    # number of edges
+    print("Number of Edges: %d" %G.number_of_edges())
+    # density of the graph
+    print("Graph Density: %f" %nx.density(G))
     while True:
         print("Press 1 to implement the Linear Threshold Model.")
         print("Press 2 to implement the Indepedent Cascade Model.")
@@ -107,7 +112,7 @@ if(option1 == 1 or option1 == 2):
                 print("Invalid option, please try again.\n")
                 continue
         while True:
-            option5 = int(input("Τype the percentage of nodes that are the seed nodes of the diffusion.\nInput must be in the range: [1, 100]\n"))
+            option5 = float(input("Τype the percentage of nodes that are the seed nodes of the diffusion.\nInput must be in the range: (0, 100]\n"))
             if(option5 > 0 and option5 <= 100):
                 nodes = G.number_of_nodes()
                 totalSeeds = ceil((option5/100)*nodes)
@@ -142,23 +147,26 @@ if(option1 == 1 or option1 == 2):
                     if (option7 > 0):
                         if(wholeFlag == 1):
                             if(diffFlag == 1):
-                                for i in range(0,5):
-                                    if(i == 0):
-                                        randomThres(G)
-                                        title = "Linear Threshold: Random Seed Nodes - Random Threshold"
-                                    elif(i == 1):
-                                        outDegreeThres(G)
-                                        title = "Linear Threshold: Random Seed Nodes - OutDegree Threshold"
-                                    elif(i == 2):
-                                        degreeCentralityThres(G)
-                                        title = "Linear Threshold: Random Seed Nodes - Degree Centrality Threshold"
-                                    elif(i == 3):
-                                        betweenCentralityThres(G)
-                                        title = "Linear Threshold: Random Seed Nodes - Betweeness Centrality  Threshold"
-                                    else:
-                                        mixedThres(G)
-                                        title = "Linear Threshold: Random Seed Nodes - Mixed Centrality  Threshold"
-                                    randomLTdiffusion(G,labels,option7,title,totalSeeds)
+                                for k in range(0,option7):
+                                    # random seeds
+                                    randomSeeds = random.sample(set(labels), totalSeeds)
+                                    for i in range(0,5):
+                                        if(i == 0):
+                                            initialRandom(G)
+                                            label = "Random Threshold"
+                                        elif(i == 1):
+                                            outDegreeThres(G)
+                                            label = "OutDegree Threshold"
+                                        elif(i == 2):
+                                            degreeCentralityThres(G)
+                                            label = "Degree Centrality Threshold"
+                                        elif(i == 3):
+                                            betweenCentralityThres(G)
+                                            label = "Betweenness Centrality  Threshold"
+                                        else:
+                                            mixedThres(G)
+                                            label = "Mixed Centrality  Threshold"                                        
+                                        randomLTdiffusion(G,labels,option7,label,randomSeeds,i)
                                     plt.show()
                             else:
                                 for i in range(0,option7):

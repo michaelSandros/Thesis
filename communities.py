@@ -62,19 +62,20 @@ def perComm(G,comms,e,wholeGraph,flag,K):
                 u = interComms[x]
                 # union
                 temp = Ij + [u]
+                # linear threshold model or independent cascade
                 if flag == 1:
                     union = linear_threshold(G,temp, steps = -4)
-                    noUnion = linear_threshold(G,Ij,steps = -4)
+                    noUnion = linear_threshold(wholeGraph,Ij,steps = -4)
                 else:
                     union = independent_cascade(G,temp, steps = -4)
-                    noUnion = independent_cascade(G,Ij,steps = -4)
-                # calculate nodes that have been activated in 
-                unionTotal = communityCalculation(comms,e, union)
-                total = calculateNodes(noUnion,wholeGraph)
+                    noUnion = independent_cascade(wholeGraph,Ij,steps = -4)
+                # calculate nodes that have been activated in the community
+                unionTotal = communityCalculation(comms, e, union)
+                total = calculateNodes(noUnion, wholeGraph)
                 d[interComms[x]] = unionTotal/NoN - total/NoN
-            # returns the max value of the dictionary
+            # return the max value of the dictionary
             highest = max(d.values())
-            # returns a list of nodes that have the max value
+            # return a list of nodes that have the max value
             maxList = [k for k,v in d.items() if v == highest]
             # get a random node
             umax = random.choice(maxList)
@@ -83,17 +84,15 @@ def perComm(G,comms,e,wholeGraph,flag,K):
             interComms.remove(umax)
     return Ij
 	
-# returns the communities with the biggest density
+# return the communities with the biggest density
 def communityDensity(G,comms):
     dens = {}
-    dens1 = {}
     finalList = []
     # find the density of each community
     # H is a subgraph consisting only by the nodes and the edges of each community
     for e in range(0,len(comms)):
         H = G.subgraph(comms[e])
         dens[e] = nx.density(H)
-        dens1[e] = nx.density(H)
     # get values
     dens_values = list(dens.values())
     # sorted by descending order
@@ -118,7 +117,7 @@ def initialNodesMapping(N,topComms,comms):
     # initialization with 0 
     for x in range(0,len(topComms)):
         initial[topComms[x]] = 0
-    # initialaztion of the weights: wk = (lamda^k/k!)*e^(-lamda)
+    # initialazation of the weights: wk = (lamda^k/k!)*e^(-lamda)
     for k in range(0,len(topComms)):
         weight = (math.pow(lamda,k)/factorial(k))*math.exp(-lamda)
         weights.extend([weight])
@@ -165,18 +164,18 @@ def commBorda(H,comms,x):
     for k in range(0,len(sorted_ddc)):
         key = list(ddc.keys())[list(ddc.values()).index(sorted_ddc[k])]
         ddcList.extend([key])
-        # deletes keys to prevent the appearance of the same node multiple times
+        # delete keys to prevent the appearance of the same node multiple times
         del ddc[key]
     for k in range(0,len(sorted_dcc)):
         key = list(dcc.keys())[list(dcc.values()).index(sorted_dcc[k])]
         dccList.extend([key])
-        # deletes keys to prevent the appearance of the same node multiple times
+        # delete keys to prevent the appearance of the same node multiple times
         del dcc[key]
     for k in range(0,len(sorted_dbc)):
         key = list(dbc.keys())[list(dbc.values()).index(sorted_dbc[k])]
         dbcList.extend([key])
-        # deletes keys to prevent the appearance of the same node multiple times
-        del dbc[key]       
+        # delete keys to prevent the appearance of the same node multiple times
+        del dbc[key]
     votes = len(comms[x]) - 1
     # votes acoring to position of each node
     for k in range(0,len(ddcList)):

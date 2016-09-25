@@ -2,11 +2,11 @@ def fileCopy():
         # open file for reading
         f1 = open('C:/Users/Mike/Desktop/links-anon.txt','r')
         # open file for writing
-        f2 = open('txtfiles/nodesFile.txt','w')
+        f2 = open('txtfiles/realData.txt','w')
         # counter
         counter = 0
         # maximum lines of f1
-        maximum = 60000
+        maximum = 15000
         # for each line in f1
         for line in f1:
                 # final line of f1
@@ -21,3 +21,5 @@ def fileCopy():
                         counter = counter + 1
         f2.close()
         f1.close()
+
+fileCopy()

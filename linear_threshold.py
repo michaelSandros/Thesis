@@ -73,7 +73,7 @@ def linear_threshold(G, seeds, steps=0):
     DG = G.to_directed()
   else:
     DG = copy.deepcopy(G)
-    
+
   # init thresholds
   for n in DG.nodes():
     if 'threshold' not in DG.node[n]:
@@ -81,7 +81,7 @@ def linear_threshold(G, seeds, steps=0):
     elif DG.node[n]['threshold'] > 1:
       raise Exception("node threshold:", DG.node[n]['threshold'], \
           "cannot be larger than 1")
-
+      
   # init influences
   in_deg = DG.in_degree()
   for e in DG.edges():
@@ -90,7 +90,7 @@ def linear_threshold(G, seeds, steps=0):
     elif DG[e[0]][e[1]]['influence'] > 1:
       raise Exception("edge influence:", DG[e[0]][e[1]]['influence'], \
           "cannot be larger than 1")
-
+    
   # perform diffusion
   A = copy.deepcopy(seeds)
   if steps <= 0:
