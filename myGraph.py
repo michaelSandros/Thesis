@@ -262,6 +262,7 @@ def wholeBorda(G):
                 # delete keys to prevent the appereance of the same node multiple times
                 # that happens if there are nodes with the same betweenness centrality
                 del dbc[key]
+
         # votes for the top node of each centrality
         votes = nodes - 1
         # votes acording to position of each node
@@ -300,7 +301,6 @@ def modelDiffusion(G,seedNodes,color,label,diffFlag,marker,ls):
         myInt = (G.number_of_nodes())
         # percentage of activated nodes to total nodes
         newList = [(x / myInt)*100 for x in activatedNodes]
-        print(newList)
         print(title)
         if(diffFlag == 1):
                 print(label)
@@ -455,8 +455,6 @@ def perCommICDiffusion(G,seedNodes):
 def perCommLTDiffusion(G,seedNodes):
     # find communities
     comms, values = commNum(G)
-    diffSteps = []
-    totalActive = []
     # top communities according to their densities
     topComms = communityDensity(G,comms)
     # initial nodes per community

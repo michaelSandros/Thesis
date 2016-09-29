@@ -25,23 +25,23 @@ def stepbystepPlot(active,steps,title,label,color,marker,ls):
 def multiplePlots(active,steps,i,title,label):
         # different colors and markers
         if(i == 0):
-                color = "b"
+                color = "r"
                 marker = "o"
                 ls = "-"
         elif(i == 1):
-                color = "g"
+                color = "sienna"
                 marker = "s"
-                ls = "--"
-        elif(i == 2):
-                color = "r"
-                marker = "x"
                 ls = "-."
+        elif(i == 2):
+                color = "m"
+                marker = "x"
+                ls = "--"
         elif(i == 3):
-                color = "k"
+                color = "b"
                 marker = "+"
                 ls = ":"
         elif(i == 4):
-                color = "m"
+                color = "k"
                 marker = "."
                 ls = "-"
         elif(i == 5):
@@ -53,7 +53,7 @@ def multiplePlots(active,steps,i,title,label):
                 marker = "^"
                 ls = "-"
         elif(i == 7):
-                color = "sienna"
+                color = "green"
                 marker = "*"
                 ls = "-"
         elif(i == 8):
