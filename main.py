@@ -36,7 +36,7 @@ if(option1 == 1 or option1 == 2):
             path = "txtfiles/"
             # available files in the path directory
             onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-            print("Availabe files:")
+            print("Available files:")
             for x in range(0,len(onlyfiles)):
                 print(onlyfiles[x])
             name = input("\nPlease, type the file's name:\n")
@@ -166,7 +166,7 @@ if(option1 == 1 or option1 == 2):
                                         else:
                                             mixedThres(G)
                                             label = "Mixed Centrality  Threshold"                                        
-                                        randomLTdiffusion(G,labels,option7,label,randomSeeds,i)
+                                        randomLTdiffusion(G,option7,label,randomSeeds,i)
                                     plt.show()
                             else:
                                 for i in range(0,option7):

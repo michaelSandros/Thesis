@@ -2,7 +2,6 @@
 import community
 import matplotlib.pyplot as plt
 import networkx as nx
-from fileCopy import *
 from linear_threshold import *
 from independent_cascade import *
 from datetime import datetime
@@ -377,7 +376,7 @@ def randomICdiffusion(G,option7,seeds):
         # plot for every simulation
         multiplePlots(newList,steps,option7,title,label)
 
-def randomLTdiffusion(G,labels,option,label,randomSeeds,k):
+def randomLTdiffusion(G,option,label,randomSeeds,k):
     # label
     title = "Linear Threshold Model Random Seed"
     if(len(randomSeeds) == 1):

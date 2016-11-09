@@ -73,7 +73,7 @@ def multiplePlots(active,steps,i,title,label):
         # title
         plt.title(title, size = 30)
         # x and y label axis range
-        plt.axis([0, len(steps) + 5, min(active) - 1, 105])
+        plt.axis([0, len(steps) + 5, 0, 105])
         # plot the line
         plt.plot(steps, active, ls = ls,color = color, label = label,marker = marker)
         # show legend with labels
