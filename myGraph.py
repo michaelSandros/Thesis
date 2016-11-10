@@ -594,7 +594,7 @@ def perCommRandomLTDiffusion(G,totalSeeds,simulations):
             for k in range(0,5):
                 if(k == 0):
                     initialRandom(G)
-                    label = " Random Threshold"
+                    label = "Random Threshold"
                 elif(k == 1):
                     outDegreeThres(G)
                     label = "OutDegree Threshold"
